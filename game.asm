@@ -46,13 +46,30 @@
 .data
 promptEnd: .asciiz "End of program "
 
-#pL1xpos .word 0x0000030 0x0000028 0x0000010
-#pL1ypos .word 0x0000030 0x0000020 0x0000010
-#pL1width .word 0x0000010 0x0000012 0x000000B
+pL1xpos: .word 0x0000000, 0x0000010, 0x0000024, 0x00000E, 0x000001B
+pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001E, 0x0000011
+pL1width: .word 0x0000010, 0x0000012, 0x0000015, 0x000012, 0x0000015
+backgroundColours: .space 65536
+xposChar: .word 0x0000000
+yposChar: .word 0x0000000
+addressChar: .word 0x10008090
+addressBee: .word 0x10008000
 
 .eqv BASE_ADDRESS 0x10008000
-
+#.eqv LIGHT_GREEN 0x489658
+#.eqv DARK_GREEN 0x8df086
+.eqv BROWN 0x735032
+.eqv LIGHT_BROWN 0xde9557
+.eqv BLACK 0x000000
+.eqv LIGHT_PURPLE 0xcd96d5
+.eqv DARK_PURPLE 0x7861bb
 .eqv DARK_GREEN 0x489658
+.eqv LIGHT_GREEN 0x8df086
+.eqv BLUE 0x86e9f0 
+.eqv PINK 0xeb63e4
+.eqv YELLOW 0xffdf1a
+.eqv DARK_BLUE 0x4e4d59
+
 .eqv P1_XPOS  0x000000010
 .eqv P1_YPOS 0x0000034
 .eqv P1_COLOR  0x86e9f0
@@ -71,25 +88,28 @@ promptEnd: .asciiz "End of program "
 .eqv SKY2_WIDTH  0x00000009
 .eqv SKY2_HEIGHT 0x00000040
 
-.eqv level1NumPlatform 3
+.eqv level1NumPlatform 4
 
 .text
-	li $s0, BASE_ADDRESS 	# $t0 stores the base address for display
-	li $s1, 0x8df086 	# $t2 stores the green colour code
-	li $s3, 0x86e9f0 	# $t3 stores the blue colour code
+	li $s1, LIGHT_GREEN 	# $t2 stores the green colour code
+	li $s3, BLUE	# $t3 stores the blue colour code
 
 	addi $s4, $zero, BASE_ADDRESS
 	addi $s5, $s4, 16384 # Store bottom right unit in s5
 	
+	la $s6, backgroundColours 	# $t0 stores the base address for display
+	
 	#paint green background
 IF:	bge $s4, $s5, END
 	sw $s1, 0($s4)
+	#sw $s1, 0($s6)
 	addi $s4, $s4, 4
+	#addi $s6, $s6, 4
 	j IF
 END:
 
 	
-	# Draw a rectangle
+	# Draw left blue rectangle
 	
 	li $s3, SKY_XPOS # Load platform 1 xpos
 	sw $s3, -4($sp) # push xpos onto stack
@@ -106,7 +126,7 @@ END:
 	
 	jal DRAW_REC
 	
-	# Draw a rectangle 2
+	# Draw right blue rectangle
 	
 	li $s3, SKY2_XPOS # Load platform 1 xpos
 	sw $s3, -4($sp) # push xpos onto stack
@@ -123,22 +143,35 @@ END:
 	
 	jal DRAW_REC
 	
-	# Draw a rectangle 3
+	# Draw level 1
 	
-	li $s3, P1_XPOS # Load platform 1 xpos
-	sw $s3, -4($sp) # push xpos onto stack
-	li $s3, P1_YPOS # Load platform 1 ypos
-	sw $s3, -8($sp) # push xpos onto stack
-	li $s3, P1_WIDTH # Load platform 1 ypos
-	sw $s3, -12($sp) # push xpos onto stack
-	li $s3, P1_HEIGHT # Load platform 1 ypos
-	sw $s3, -16($sp) # push xpos onto stack
-	li $s3, DARK_GREEN # Load platform 1 ypos
-	sw $s3, -20($sp) # push xpos onto stack
+	jal DRAW_L1
 	
-	addi $sp, $sp, -20 # move pointer to make space
+	#la $s0, xpos
+	#la $s1, ypos
 	
-	jal DRAW_REC
+	# Draw character
+	#lw $s3, 0($s0)		#$s3 = xpos[i]
+	#sw $s3, -4($sp) 	# push xpos onto stack
+	#lw $s3, 0($s1)		#$s3 = ypos[i]
+	#sw $s3, -8($sp) 	# push ypos onto stack
+	
+	#addi $sp, $sp, -8 	# move pointer to make space
+	
+	la $a0, addressChar
+	lw $a0, 0($a0)
+	
+	#jal DRAW_CHAR
+	
+	la $a0, addressChar
+	lw $a0, 0($a0)
+	
+	jal DRAW_CHAR_RIGHT
+	
+	la $a0, addressBee
+	lw $a0, 0($a0)
+	
+	jal DRAW_BEE
 	
 	# Prints the prompt A text
 	li $v0, 4		      
@@ -153,30 +186,56 @@ END:
 DRAW_L1:
 	# draw level 1 platforms
 	add $t8, $zero, $zero 		# define t0 to be platform index
-	li $t9, level1NumPlatform	
-	bge $t8, $t9, END_DRAW_L1
+	li $t9, level1NumPlatform	# store num of platforms in level 1
+	
+	add $t7, $t7, 4			# store 4 in t7
+	mult $t9, $t7			# mult num of platforms by 4
+	mflo $t9			# store num platforms * 4 in $t9
+	
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+	
+DRAW_PFORM_LOOP:
+	# Draw platforms for the level
+	bge $t8, $t9, END_DRAW_L1  	# continue loop until index = num of platforms
 	
 	# Get platform at current index 
 	
-	
-	
+	la $s0, pL1xpos
+	la $s1, pL1ypos
+	la $s2, pL1width
 	
 	# Draw platform rectangle
 	
-	li $s3, P1_XPOS # Load platform 1 xpos
-	sw $s3, -4($sp) # push xpos onto stack
-	li $s3, P1_YPOS # Load platform 1 ypos
-	sw $s3, -8($sp) # push xpos onto stack
-	li $s3, P1_WIDTH # Load platform 1 ypos
-	sw $s3, -12($sp) # push xpos onto stack
-	li $s3, P1_HEIGHT # Load platform 1 ypos
-	sw $s3, -16($sp) # push xpos onto stack
-	li $s3, DARK_GREEN # Load platform 1 ypos
-	sw $s3, -20($sp) # push xpos onto stack
+	add $s0, $s0, $t8	# t3 = addr(xpos) + i
+	add $s1, $s1, $t8	# t3 = addr(ypos) + i
+	add $s2, $s2, $t8	# t3 = addr(width) + i
+	
+	
+	# push arguments onto stack
+	lw $s3, 0($s0)		#$s3 = xpos[i]
+	sw $s3, -4($sp) 	# push xpos onto stack
+	lw $s3, 0($s1)		#$s3 = ypos[i]
+	sw $s3, -8($sp) 	# push ypos onto stack
+	lw $s3, 0($s2)		#$s3 = width[i]
+	sw $s3, -12($sp) 	# push width onto stack
+	addi $s3, $zero, 2 	# set height of platform to 2
+	sw $s3, -16($sp) 	# push height onto stack
+	li $s3, DARK_GREEN 	# make platforms dark green
+	sw $s3, -20($sp) 	# push colour onto stack
+	
+	addi $sp, $sp, -20 	# move pointer to make space
+	
+	jal DRAW_REC
+	
+	addi $t8, $t8, 4	# update index
+	j DRAW_PFORM_LOOP	# jump to beginning of loop
+	
 	
 END_DRAW_L1:
-	
-	
+	lw $s3, 0($sp)
+	addi $sp, $sp, 4
+	jr $s3
 	
 DRAW_REC:			# Draw_Rec func takes in arguments: xpos, ypos, width, height, colour
 	lw $t0, 0($sp)		# Pop colour off the stack
@@ -229,6 +288,140 @@ ROW_END:
 
 	j MOVE_ROW
 REC_END:
+	jr $ra
+	
+DRAW_CHAR:
+	add $t0, $zero, BROWN   # Store brown
+	sw $t0, 0($a0)		# Colour specified pixels brown
+	sw $t0, 4($a0)
+	sw $t0, 8($a0)
+	sw $t0, 12($a0)
+	sw $t0, 16($a0)
+	sw $t0, 256($a0)
+	sw $t0, 260($a0)
+	sw $t0, 512($a0)
+	sw $t0, 516($a0)
+	sw $t0, 768($a0)
+	sw $t0, 772($a0)
+	sw $t0, 776($a0)
+	sw $t0, 780($a0)
+	
+	add $t0, $zero, LIGHT_BROWN   # Paint pixels light brown
+	sw $t0, 264($a0)
+	sw $t0, 268($a0)
+	sw $t0, 272($a0)
+	sw $t0, 520($a0)
+	sw $t0, 524($a0)
+	sw $t0, 528($a0)
+	sw $t0, 1792($a0)
+	sw $t0, 1796($a0)
+	sw $t0, 1804($a0)
+	sw $t0, 1808($a0)
+	
+	add $t0, $zero, DARK_PURPLE   # Paint pixels dark purple
+	sw $t0, 784($a0)
+	sw $t0, 1024($a0)
+	sw $t0, 1028($a0)
+	sw $t0, 1032($a0)
+	sw $t0, 1036($a0)
+	sw $t0, 1040($a0)
+	
+	add $t0, $zero, LIGHT_PURPLE   # Paint pixels light purple
+	sw $t0, 1280($a0)
+	sw $t0, 1284($a0)
+	sw $t0, 1288($a0)
+	sw $t0, 1292($a0)
+	sw $t0, 1296($a0)
+	sw $t0, 1536($a0)
+	sw $t0, 1540($a0)
+	sw $t0, 1544($a0)
+	sw $t0, 1548($a0)
+	sw $t0, 1552($a0)
+
+	add $t0, $zero, BLACK   # Paint pixels light purple
+	sw $t0, 2048($a0)
+	sw $t0, 2052($a0)
+	sw $t0, 2060($a0)
+	sw $t0, 2064($a0)
+	jr $ra
+
+DRAW_CHAR_RIGHT:
+	add $t0, $zero, BROWN   # Store brown
+	sw $t0, 0($a0)		# Colour specified pixels brown
+	sw $t0, 4($a0)
+	sw $t0, 8($a0)
+	sw $t0, 12($a0)
+	sw $t0, 16($a0)
+	sw $t0, 272($a0)
+	sw $t0, 528($a0)
+	sw $t0, 768($a0)
+	sw $t0, 772($a0)
+	sw $t0, 776($a0)
+	sw $t0, 780($a0)
+	sw $t0, 784($a0)
+	
+	add $t0, $zero, LIGHT_BROWN   # Paint pixels light brown
+	sw $t0, 256($a0)
+	sw $t0, 260($a0)
+	sw $t0, 512($a0)
+	sw $t0, 516($a0)
+	sw $t0, 264($a0)
+	sw $t0, 268($a0)
+	sw $t0, 520($a0)
+	sw $t0, 524($a0)
+	sw $t0, 1792($a0)
+	sw $t0, 1796($a0)
+	sw $t0, 1804($a0)
+	sw $t0, 1808($a0)
+	
+	add $t0, $zero, DARK_PURPLE   # Paint pixels dark purple
+	sw $t0, 768($a0)
+	sw $t0, 1024($a0)
+	sw $t0, 1028($a0)
+	sw $t0, 1032($a0)
+	sw $t0, 1036($a0)
+	sw $t0, 1040($a0)
+	
+	add $t0, $zero, LIGHT_PURPLE   # Paint pixels light purple
+	sw $t0, 1280($a0)
+	sw $t0, 1284($a0)
+	sw $t0, 1288($a0)
+	sw $t0, 1292($a0)
+	sw $t0, 1296($a0)
+	sw $t0, 1536($a0)
+	sw $t0, 1540($a0)
+	sw $t0, 1544($a0)
+	sw $t0, 1548($a0)
+	sw $t0, 1552($a0)
+
+	add $t0, $zero, BLACK   # Paint pixels light purple
+	sw $t0, 2048($a0)
+	sw $t0, 2052($a0)
+	sw $t0, 2060($a0)
+	sw $t0, 2064($a0)
+	jr $ra
+		
+	
+DRAW_BEE:
+	add $t0, $zero, YELLOW   # Store yellow
+	sw $t0, 0($a0)		# Colour specified pixels yellow
+	sw $t0, 8($a0)
+	sw $t0, 16($a0)
+	sw $t0, 256($a0)
+	sw $t0, 264($a0)
+	sw $t0, 272($a0)
+	sw $t0, 512($a0)
+	sw $t0, 520($a0)
+	sw $t0, 528($a0)
+	
+	add $t0, $zero, DARK_BLUE   # Store dark blue
+	sw $t0, 4($a0)		# Colour specified pixels blue
+	sw $t0, 12($a0)
+	sw $t0, 260($a0)
+	sw $t0, 268($a0)
+	sw $t0, 516($a0)
+	sw $t0, 524($a0)
+	
 	jr $ra
 	
 
