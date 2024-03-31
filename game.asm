@@ -96,9 +96,8 @@ addressBee: .word 0x10008000
 #####################################################
 
 	
-	# Draw level 1
 	
-	jal DRAW_L1
+	jal DRAW_L1			# Draw Level 1
 	
 	#la $s0, xpos
 	#la $s1, ypos
@@ -168,27 +167,27 @@ DRAW_BACKGROUND:
 	addi $sp, $sp, -4 		# move pointer to make space
 	sw $ra, 0($sp) 			# save $ra to the stack
 
-	li $s1, LIGHT_GREEN 			# $t2 stores the green colour code
-	li $s3, BLUE					# $t3 stores the blue colour code
+	li $t1, LIGHT_GREEN 			# $t1 stores the green colour code
+	li $t3, BLUE					# $t3 stores the blue colour code
 
-	addi $s4, $zero, BASE_ADDRESS
-	addi $s5, $s4, 16384 			# Store bottom right unit in s5
+	addi $t4, $zero, BASE_ADDRESS
+	addi $t5, $t4, 16384 			# Store bottom right unit in t5
 	
 	la $s6, backgroundColours 		# $t0 stores the base address for display
 	
 	
 IF:	
-	bge $s4, $s5, END
-	sw $s1, 0($s4)					# paint green background
-	addi $s4, $s4, 4
+	bge $t4, $t5, END
+	sw $t1, 0($t4)					# paint green background
+	addi $t4, $t4, 4
 	j IF
 END:
 	
 	jal DRAW_SKY
 
-	lw $s3, 0($sp)		# pop prev $ra from stack
+	lw $t3, 0($sp)		# pop prev $ra from stack
 	addi $sp, $sp, 4	# update stacker pointer
-	jr $s3				# jump to caller function
+	jr $t3				# jump to caller function
 
 ############## Draw sky #############################
 
@@ -198,16 +197,16 @@ DRAW_SKY:
 
     # Draw left blue rectangle
 	
-	li $s3, SKY_XPOS # Load platform 1 xpos
-	sw $s3, -4($sp) # push xpos onto stack
-	li $s3, SKY_YPOS # Load platform 1 ypos
-	sw $s3, -8($sp) # push xpos onto stack
-	li $s3, SKY_WIDTH # Load platform 1 ypos
-	sw $s3, -12($sp) # push xpos onto stack
-	li $s3, SKY_HEIGHT # Load platform 1 ypos
-	sw $s3, -16($sp) # push xpos onto stack
-	li $s3, SKY_COLOR # Load platform 1 ypos
-	sw $s3, -20($sp) # push xpos onto stack
+	li $t3, SKY_XPOS # Load platform 1 xpos
+	sw $t3, -4($sp) # push xpos onto stack
+	li $t3, SKY_YPOS # Load platform 1 ypos
+	sw $t3, -8($sp) # push xpos onto stack
+	li $t3, SKY_WIDTH # Load platform 1 ypos
+	sw $t3, -12($sp) # push xpos onto stack
+	li $t3, SKY_HEIGHT # Load platform 1 ypos
+	sw $t3, -16($sp) # push xpos onto stack
+	li $t3, SKY_COLOR # Load platform 1 ypos
+	sw $t3, -20($sp) # push xpos onto stack
 	
 	addi $sp, $sp, -20 # move pointer to make space
 	
@@ -215,24 +214,24 @@ DRAW_SKY:
 	
 	# Draw right blue rectangle
 	
-	li $s3, SKY2_XPOS # Load platform 1 xpos
-	sw $s3, -4($sp) # push xpos onto stack
-	li $s3, SKY2_YPOS # Load platform 1 ypos
-	sw $s3, -8($sp) # push xpos onto stack
-	li $s3, SKY2_WIDTH # Load platform 1 ypos
-	sw $s3, -12($sp) # push xpos onto stack
-	li $s3, SKY2_HEIGHT # Load platform 1 ypos
-	sw $s3, -16($sp) # push xpos onto stack
-	li $s3, SKY2_COLOR # Load platform 1 ypos
-	sw $s3, -20($sp) # push xpos onto stack
+	li $t3, SKY2_XPOS # Load platform 1 xpos
+	sw $t3, -4($sp) # push xpos onto stack
+	li $t3, SKY2_YPOS # Load platform 1 ypos
+	sw $t3, -8($sp) # push xpos onto stack
+	li $t3, SKY2_WIDTH # Load platform 1 ypos
+	sw $t3, -12($sp) # push xpos onto stack
+	li $t3, SKY2_HEIGHT # Load platform 1 ypos
+	sw $t3, -16($sp) # push xpos onto stack
+	li $t3, SKY2_COLOR # Load platform 1 ypos
+	sw $t3, -20($sp) # push xpos onto stack
 	
 	addi $sp, $sp, -20 # move pointer to make space
 	
 	jal DRAW_REC
 
-	lw $s3, 0($sp)		# pop prev $ra from stack
+	lw $t3, 0($sp)		# pop prev $ra from stack
 	addi $sp, $sp, 4	# update stacker pointer
-	jr $s3				# jump to caller function
+	jr $t3				# jump to caller function
 
 ############# Draw Level 1 #############################
 
@@ -267,28 +266,28 @@ DRAW_PFORM_LOOP:
 	
 	# Get platform at current index 
 	
-	la $s0, pL1xpos
-	la $s1, pL1ypos
-	la $s2, pL1width
+	la $t0, pL1xpos
+	la $t1, pL1ypos
+	la $t2, pL1width
 	
 	# Draw platform rectangle
 	
-	add $s0, $s0, $t8	# t3 = addr(xpos) + i
-	add $s1, $s1, $t8	# t3 = addr(ypos) + i
-	add $s2, $s2, $t8	# t3 = addr(width) + i
+	add $t0, $t0, $t8	# t3 = addr(xpos) + i
+	add $t1, $t1, $t8	# t3 = addr(ypos) + i
+	add $t2, $t2, $t8	# t3 = addr(width) + i
 	
 	
 	# push arguments onto stack
-	lw $s3, 0($s0)		#$s3 = xpos[i]
-	sw $s3, -4($sp) 	# push xpos onto stack
-	lw $s3, 0($s1)		#$s3 = ypos[i]
-	sw $s3, -8($sp) 	# push ypos onto stack
-	lw $s3, 0($s2)		#$s3 = width[i]
-	sw $s3, -12($sp) 	# push width onto stack
-	addi $s3, $zero, 2 	# set height of platform to 2
-	sw $s3, -16($sp) 	# push height onto stack
-	li $s3, DARK_GREEN 	# make platforms dark green
-	sw $s3, -20($sp) 	# push colour onto stack
+	lw $t3, 0($t0)		#$s3 = xpos[i]
+	sw $t3, -4($sp) 	# push xpos onto stack
+	lw $t3, 0($t1)		#$s3 = ypos[i]
+	sw $t3, -8($sp) 	# push ypos onto stack
+	lw $t3, 0($t2)		#$s3 = width[i]
+	sw $t3, -12($sp) 	# push width onto stack
+	addi $t3, $zero, 2 	# set height of platform to 2
+	sw $t3, -16($sp) 	# push height onto stack
+	li $t3, DARK_GREEN 	# make platforms dark green
+	sw $t3, -20($sp) 	# push colour onto stack
 	
 	addi $sp, $sp, -20 	# move pointer to make space
 	
@@ -299,9 +298,9 @@ DRAW_PFORM_LOOP:
 	
 	
 END_DRAW_L1:
-	lw $s3, 0($sp)		# pop prev $ra from stack
+	lw $t3, 0($sp)		# pop prev $ra from stack
 	addi $sp, $sp, 4	# update stacker pointer
-	jr $s3				# jump to prev function
+	jr $t3				# jump to prev function
 	
 ################### Draw a rectangle ##################################
 
