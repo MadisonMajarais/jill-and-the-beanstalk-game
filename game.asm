@@ -55,6 +55,7 @@ yposChar: .word 0x0000000
 addressChar: .word 0x10008090
 addressBee: .word 0x10008000
 
+
 .eqv BASE_ADDRESS 0x10008000
 #.eqv LIGHT_GREEN 0x489658
 #.eqv DARK_GREEN 0x8df086
@@ -79,37 +80,123 @@ addressBee: .word 0x10008000
 .eqv SKY_XPOS  0x000000000
 .eqv SKY_YPOS 0x00000000
 .eqv SKY_COLOR  0x86e9f0
-.eqv SKY_WIDTH  0x00000009
+.eqv SKY_WIDTH  0x00000001
 .eqv SKY_HEIGHT 0x00000040
 
-.eqv SKY2_XPOS  0x000000037
+.eqv SKY2_XPOS  0x00000003F
 .eqv SKY2_YPOS 0x00000000
 .eqv SKY2_COLOR  0x86e9f0
-.eqv SKY2_WIDTH  0x00000009
+.eqv SKY2_WIDTH  0x00000001
 .eqv SKY2_HEIGHT 0x00000040
 
 .eqv level1NumPlatform 4
 
 .text
-	li $s1, LIGHT_GREEN 	# $t2 stores the green colour code
-	li $s3, BLUE	# $t3 stores the blue colour code
+
+#####################################################
+
+	
+	# Draw level 1
+	
+	jal DRAW_L1
+	
+	#la $s0, xpos
+	#la $s1, ypos
+	
+	# Draw character
+	#lw $s3, 0($s0)		#$s3 = xpos[i]
+	#sw $s3, -4($sp) 	# push xpos onto stack
+	#lw $s3, 0($s1)		#$s3 = ypos[i]
+	#sw $s3, -8($sp) 	# push ypos onto stack
+	
+	#addi $sp, $sp, -8 	# move pointer to make space
+	
+	la $a0, addressChar
+	lw $a0, 0($a0)
+	
+	#jal DRAW_CHAR
+	
+	la $a0, addressChar
+	lw $a0, 0($a0)
+	
+	jal DRAW_CHAR_RIGHT
+	
+	la $a0, addressBee
+	lw $a0, 0($a0)
+	
+	jal DRAW_BEE
+	
+	li $v0, 32
+	li $a0, 5000 # Wait one second (1000 milliseconds)
+	syscall
+	
+	#keyboard press
+	li $t9, 0xffff0000
+	lw $t8, 0($t9)
+	beq $t8, 1, keypress_happened
+	
+Final:	#sw $t2, 0($t4)
+	li $v0, 10 # terminate the program gracefully
+	syscall
+
+keypress_happened:
+	lw $t2, 4($t9) # this assumes $t9 is set to 0xfff0000 from before
+	beq $t2, 0x61, respond_to_a # ASCII code of 'a' is 0x61 or 97 in decimal
+	j Final
+	
+respond_to_a:
+	# Prints the end prompt text
+	li $v0, 4		      
+	la $a0, promptEnd
+	syscall  
+	
+	la $a0, BASE_ADDRESS
+	#lw $a0, ($a0)
+	
+	jal DRAW_CHAR_RIGHT
+	
+	j Final
+	
+	
+#####################  Painting Functions  ################################
+
+
+############## Draw background ############################
+
+DRAW_BACKGROUND:            	
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	li $s1, LIGHT_GREEN 			# $t2 stores the green colour code
+	li $s3, BLUE					# $t3 stores the blue colour code
 
 	addi $s4, $zero, BASE_ADDRESS
-	addi $s5, $s4, 16384 # Store bottom right unit in s5
+	addi $s5, $s4, 16384 			# Store bottom right unit in s5
 	
-	la $s6, backgroundColours 	# $t0 stores the base address for display
+	la $s6, backgroundColours 		# $t0 stores the base address for display
 	
-	#paint green background
-IF:	bge $s4, $s5, END
-	sw $s1, 0($s4)
-	#sw $s1, 0($s6)
+	
+IF:	
+	bge $s4, $s5, END
+	sw $s1, 0($s4)					# paint green background
 	addi $s4, $s4, 4
-	#addi $s6, $s6, 4
 	j IF
 END:
-
 	
-	# Draw left blue rectangle
+	jal DRAW_SKY
+
+	lw $s3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $s3				# jump to caller function
+
+############## Draw sky #############################
+
+DRAW_SKY:
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+    # Draw left blue rectangle
 	
 	li $s3, SKY_XPOS # Load platform 1 xpos
 	sw $s3, -4($sp) # push xpos onto stack
@@ -142,60 +229,39 @@ END:
 	addi $sp, $sp, -20 # move pointer to make space
 	
 	jal DRAW_REC
-	
-	# Draw level 1
-	
-	jal DRAW_L1
-	
-	#la $s0, xpos
-	#la $s1, ypos
-	
-	# Draw character
-	#lw $s3, 0($s0)		#$s3 = xpos[i]
-	#sw $s3, -4($sp) 	# push xpos onto stack
-	#lw $s3, 0($s1)		#$s3 = ypos[i]
-	#sw $s3, -8($sp) 	# push ypos onto stack
-	
-	#addi $sp, $sp, -8 	# move pointer to make space
-	
-	la $a0, addressChar
-	lw $a0, 0($a0)
-	
-	#jal DRAW_CHAR
-	
-	la $a0, addressChar
-	lw $a0, 0($a0)
-	
-	jal DRAW_CHAR_RIGHT
-	
-	la $a0, addressBee
-	lw $a0, 0($a0)
-	
-	jal DRAW_BEE
-	
-	# Prints the prompt A text
-	li $v0, 4		      
-	la $a0, promptEnd
-	syscall    
-	
-	#sw $t2, 0($t4)
-	li $v0, 10 # terminate the program gracefully
-	syscall
-	
-	
+
+	lw $s3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $s3				# jump to caller function
+
+############# Draw Level 1 #############################
+
 DRAW_L1:
+
+	# Draw background
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	jal DRAW_BACKGROUND  	# Draw background
+
+
 	# draw level 1 platforms
-	add $t8, $zero, $zero 		# define t0 to be platform index
+	add $t8, $zero, $zero 		# define t8 to be platform index
 	li $t9, level1NumPlatform	# store num of platforms in level 1
 	
 	add $t7, $t7, 4			# store 4 in t7
 	mult $t9, $t7			# mult num of platforms by 4
-	mflo $t9			# store num platforms * 4 in $t9
+	mflo $t9				# store num platforms * 4 in $t9
 	
 	addi $sp, $sp, -4 		# move pointer to make space
 	sw $ra, 0($sp) 			# save $ra to the stack
+
+	
 	
 DRAW_PFORM_LOOP:
+
+	 
 	# Draw platforms for the level
 	bge $t8, $t9, END_DRAW_L1  	# continue loop until index = num of platforms
 	
@@ -233,30 +299,34 @@ DRAW_PFORM_LOOP:
 	
 	
 END_DRAW_L1:
-	lw $s3, 0($sp)
-	addi $sp, $sp, 4
-	jr $s3
+	lw $s3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $s3				# jump to prev function
 	
-DRAW_REC:			# Draw_Rec func takes in arguments: xpos, ypos, width, height, colour
+################### Draw a rectangle ##################################
+
+# Draw_Rec func takes in arguments: xpos, ypos, width, height, colour
+
+DRAW_REC:				
 	lw $t0, 0($sp)		# Pop colour off the stack
 	lw $t1, 4($sp)		# Pop height off the stack
 	lw $t2, 8($sp)		# Pop width off the stack
 	lw $t3, 12($sp)		# Pop ypos off the stack
 	lw $t4, 16($sp)		# Pop xpos off the stack
 	
-	addi $sp, $sp, 20	# Updaste stack pointer
+	addi $sp, $sp, 20	# Update stack pointer
 	
 	# Get address of position
 	addi $t5, $zero, 256 	# Store 256 in temp variable
-	mult $t5, $t3		# Multiply ypos by 256
-	mflo $t3 		# store ypoz * 256
+	mult $t5, $t3			# Multiply ypos by 256
+	mflo $t3 				# store ypoz * 256
 	
-	addi $t5, $zero, 4 	# Store 4 in temp variable
-	mult $t5, $t4		# Multiply xpos by 4
-	mflo $t4 		# store xpos * 4
+	addi $t5, $zero, 4 		# Store 4 in temp variable
+	mult $t5, $t4			# Multiply xpos by 4
+	mflo $t4 				# store xpos * 4
 	
-	add $t3, $t3, $t4	# calculate address relative to BASE_ADDRESS
-	addi $t3, $t3, BASE_ADDRESS	# Store address of top left corner of rectangle
+	add $t3, $t3, $t4				# calculate address relative to BASE_ADDRESS
+	addi $t3, $t3, BASE_ADDRESS		# Store address of top left corner of rectangle
 	
 	add $t5, $zero, $zero   # iterator for rows
 	add $t6, $zero, $zero   # iterator for column
@@ -269,7 +339,7 @@ MOVE_ROW:
 COLOR_ROW:	
 	
 	bge $t6, $t2, ROW_END	# Check if filled the correct number of columns
-	sw $t0, 0($t4)		# Fill current address with correct colour
+	sw $t0, 0($t4)			# Fill current address with correct colour
 	
 	
 	addi $t4, $t4, 4	# Move current address to next unit
@@ -278,21 +348,23 @@ COLOR_ROW:
 	j COLOR_ROW
 	
 ROW_END:
-	addi $t5, $t5, 1 	# increase row by 1
-	addi $t6, $zero, 0 	# reset col to index 0
+	addi $t5, $t5, 1 		# increase row by 1
+	addi $t6, $zero, 0 		# reset col to index 0
 	addi $t7, $zero, 256 	# temp var to hold 256
-	mult $t5, $t7		# mult row num by 256
-	mflo $t7		# store product in t7
+	mult $t5, $t7			# mult row num by 256
+	mflo $t7				# store product in t7
 	
-	add $t4, $t3, $t7	# Move current address to next row by adding t7 val to original address
+	add $t4, $t3, $t7		# Move current address to next row by adding t7 val to original address
 
 	j MOVE_ROW
 REC_END:
 	jr $ra
 	
+################# Draw character facing left #############################
+
 DRAW_CHAR:
 	add $t0, $zero, BROWN   # Store brown
-	sw $t0, 0($a0)		# Colour specified pixels brown
+	sw $t0, 0($a0)			# Colour specified pixels brown
 	sw $t0, 4($a0)
 	sw $t0, 8($a0)
 	sw $t0, 12($a0)
@@ -345,9 +417,11 @@ DRAW_CHAR:
 	sw $t0, 2064($a0)
 	jr $ra
 
+############ Draw character facing right ########################
+
 DRAW_CHAR_RIGHT:
 	add $t0, $zero, BROWN   # Store brown
-	sw $t0, 0($a0)		# Colour specified pixels brown
+	sw $t0, 0($a0)			# Colour specified pixels brown
 	sw $t0, 4($a0)
 	sw $t0, 8($a0)
 	sw $t0, 12($a0)
@@ -401,10 +475,11 @@ DRAW_CHAR_RIGHT:
 	sw $t0, 2064($a0)
 	jr $ra
 		
-	
+########## Draw bee #####################	
+
 DRAW_BEE:
 	add $t0, $zero, YELLOW   # Store yellow
-	sw $t0, 0($a0)		# Colour specified pixels yellow
+	sw $t0, 0($a0)			# Colour specified pixels yellow
 	sw $t0, 8($a0)
 	sw $t0, 16($a0)
 	sw $t0, 256($a0)
@@ -415,7 +490,7 @@ DRAW_BEE:
 	sw $t0, 528($a0)
 	
 	add $t0, $zero, DARK_BLUE   # Store dark blue
-	sw $t0, 4($a0)		# Colour specified pixels blue
+	sw $t0, 4($a0)				# Colour specified pixels blue
 	sw $t0, 12($a0)
 	sw $t0, 260($a0)
 	sw $t0, 268($a0)
