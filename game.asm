@@ -54,11 +54,10 @@ xposChar: .word 0x0000000
 yposChar: .word 0x0000000
 addressChar: .word 0x10008090
 addressBee: .word 0x10008000
-
+addressWater: .word 0x10008528
 
 .eqv BASE_ADDRESS 0x10008000
-#.eqv LIGHT_GREEN 0x489658
-#.eqv DARK_GREEN 0x8df086
+.eqv
 .eqv BROWN 0x735032
 .eqv LIGHT_BROWN 0xde9557
 .eqv BLACK 0x000000
@@ -70,6 +69,8 @@ addressBee: .word 0x10008000
 .eqv PINK 0xeb63e4
 .eqv YELLOW 0xffdf1a
 .eqv DARK_BLUE 0x4e4d59
+.eqv INDIGO 0x1740f5
+.eqv BABY_BLUE 0xbdc7f3
 
 .eqv P1_XPOS  0x000000010
 .eqv P1_YPOS 0x0000034
@@ -125,6 +126,11 @@ addressBee: .word 0x10008000
 	
 	jal DRAW_BEE
 	
+	la $a0, addressWater
+	lw $a0, 0($a0)
+	
+	jal DRAW_WATER
+	
 	li $v0, 32
 	li $a0, 5000 # Wait one second (1000 milliseconds)
 	syscall
@@ -167,11 +173,11 @@ DRAW_BACKGROUND:
 	addi $sp, $sp, -4 		# move pointer to make space
 	sw $ra, 0($sp) 			# save $ra to the stack
 
-	li $t1, LIGHT_GREEN 			# $t1 stores the green colour code
+	li $t1, LIGHT_GREEN 			# $t2 stores the green colour code
 	li $t3, BLUE					# $t3 stores the blue colour code
 
 	addi $t4, $zero, BASE_ADDRESS
-	addi $t5, $t4, 16384 			# Store bottom right unit in t5
+	addi $t5, $t4, 16384 			# Store bottom right unit in s5
 	
 	la $s6, backgroundColours 		# $t0 stores the base address for display
 	
@@ -278,11 +284,11 @@ DRAW_PFORM_LOOP:
 	
 	
 	# push arguments onto stack
-	lw $t3, 0($t0)		#$s3 = xpos[i]
+	lw $t3, 0($t0)		#$t3 = xpos[i]
 	sw $t3, -4($sp) 	# push xpos onto stack
-	lw $t3, 0($t1)		#$s3 = ypos[i]
+	lw $t3, 0($t1)		#$t3 = ypos[i]
 	sw $t3, -8($sp) 	# push ypos onto stack
-	lw $t3, 0($t2)		#$s3 = width[i]
+	lw $t3, 0($t2)		#$t3 = width[i]
 	sw $t3, -12($sp) 	# push width onto stack
 	addi $t3, $zero, 2 	# set height of platform to 2
 	sw $t3, -16($sp) 	# push height onto stack
@@ -495,6 +501,35 @@ DRAW_BEE:
 	sw $t0, 268($a0)
 	sw $t0, 516($a0)
 	sw $t0, 524($a0)
+	
+	jr $ra
+	
+DRAW_WATER:
+	add $t0, $zero, INDIGO   	# Store Indigo
+	sw $t0, 0($a0)			# Colour specified pixels yellow
+	sw $t0, 4($a0)
+	sw $t0, 8($a0)
+	sw $t0, 12($a0)
+	sw $t0, 256($a0)
+	sw $t0, 260($a0)
+	sw $t0, 264($a0)
+	sw $t0, 268($a0)
+	sw $t0, 512($a0)
+	sw $t0, 516($a0)
+	sw $t0, 520($a0)
+	sw $t0, 524($a0)
+	sw $t0, 768($a0)
+	sw $t0, 772($a0)
+	sw $t0, 776($a0)
+	sw $t0, 780($a0)
+	sw $t0, 1024($a0)
+	sw $t0, 1028($a0)
+	sw $t0, 1032($a0)
+	sw $t0, 1036($a0)
+	
+	add $t0, $zero, BABY_BLUE   	# Store baby blue
+	sw $t0, 264($a0)			# Colour specified pixels baby
+	sw $t0, 520($a0)
 	
 	jr $ra
 	
