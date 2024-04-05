@@ -1,4 +1,4 @@
-#####################################################################
+#d####################################################################
 #
 # CSCB58 Winter 2024 Assembly Final Project
 # University of Toronto, Scarborough
@@ -45,6 +45,7 @@
 #
 .data
 promptEnd: .asciiz "End of program "
+promptA: .asciiz "pressed a"
 
 pL1xpos: .word 0x0000000, 0x0000010, 0x0000024, 0x00000E, 0x000001B
 pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001E, 0x0000011
@@ -52,12 +53,28 @@ pL1width: .word 0x0000010, 0x0000012, 0x0000015, 0x000012, 0x0000015
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
-addressChar: .word 0x10008090
+addressChar: .word 0x10008000
 addressBee: .word 0x10008000
 addressWater: .word 0x10008528
+charJumpTimer: .word 10
+charHorDir:	.word 1
+# 0 - left
+# 1 - right
+charVerDir: .word 0
+# 0 - platform
+# 1 - jumping up
+# 2 - falling
 
 .eqv BASE_ADDRESS 0x10008000
-.eqv
+
+.eqv ZERO 0
+.eqv WIDTH 64
+.eqv WIDTH_PIXELS 256
+.eqv CHARACTER_WIDTH 5
+.eqv CHARACTER_WIDTH_PIXELS 20
+.eqv CHARACTER_HEIGHT 9
+.eqv UNIT_WIDTH 4
+
 .eqv BROWN 0x735032
 .eqv LIGHT_BROWN 0xde9557
 .eqv BLACK 0x000000
@@ -92,11 +109,20 @@ addressWater: .word 0x10008528
 
 .eqv level1NumPlatform 4
 
+#s0 is horizontal direction 0 means left 1 means right
+# s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
+
+
 .text
 
 #####################################################
 
-	
+	la $t3, xposChar		#load char xposition address
+	lw $t4, 0($t3)			# loads xposition
+
+	addi $t4, $zero, 0		# set xposition variable to 0
+
+	sw $t4, 0($t3)			# Update xpos variable in memory
 	
 	jal DRAW_L1			# Draw Level 1
 	
@@ -111,15 +137,15 @@ addressWater: .word 0x10008528
 	
 	#addi $sp, $sp, -8 	# move pointer to make space
 	
-	la $a0, addressChar
-	lw $a0, 0($a0)
+	#la $a0, addressChar
+	#lw $a0, 0($a0)
 	
 	#jal DRAW_CHAR
 	
-	la $a0, addressChar
-	lw $a0, 0($a0)
+	#la $a0, addressChar
+	#lw $a0, 0($a0)
 	
-	jal DRAW_CHAR_RIGHT
+	#jal DRAW_CHAR_RIGHT
 	
 	la $a0, addressBee
 	lw $a0, 0($a0)
@@ -130,38 +156,249 @@ addressWater: .word 0x10008528
 	lw $a0, 0($a0)
 	
 	jal DRAW_WATER
-	
-	li $v0, 32
-	li $a0, 5000 # Wait one second (1000 milliseconds)
-	syscall
-	
-	#keyboard press
-	li $t9, 0xffff0000
-	lw $t8, 0($t9)
-	beq $t8, 1, keypress_happened
-	
-Final:	#sw $t2, 0($t4)
-	li $v0, 10 # terminate the program gracefully
-	syscall
 
-keypress_happened:
-	lw $t2, 4($t9) # this assumes $t9 is set to 0xfff0000 from before
-	beq $t2, 0x61, respond_to_a # ASCII code of 'a' is 0x61 or 97 in decimal
-	j Final
 	
-respond_to_a:
-	# Prints the end prompt text
-	li $v0, 4		      
-	la $a0, promptEnd
-	syscall  
 	
 	la $a0, BASE_ADDRESS
 	#lw $a0, ($a0)
 	
+	#jal DRAW_CHAR_RIGHT
+	
+	j MAIN
+
+################## Main Loop #################################
+MAIN:
+	li $v0, 32
+	li $a0, 40 	# Wait one second (1000 milliseconds)
+	syscall
+
+	#keyboard press
+	li $t9, 0xffff0000
+	lw $t8, 0($t9)
+	beq $t8, 1, keypress_happened
+
+AFTER_KEYPRESS:
+
+	jal GRAVITY
+
+	la $a0, addressChar		#Get character address
+	lw $a0, 0($a0)
+
+	beq $s0, $zero, LEFT
+RIGHT:
 	jal DRAW_CHAR_RIGHT
+	J AFTER_CHAR_DRAW
+LEFT:
+	jal DRAW_CHAR_LEFT		# Draw Character
+
+AFTER_CHAR_DRAW:
+
+	j MAIN
+############# Keyboard press ###############################
+
+keypress_happened:
+	lw $t2, 4($t9) # this assumes $t9 is set to 0xfff0000 from before
+	beq $t2, 0x71, QUIT # ASCII code of 'q' is 0x71 or 113 in decimal
+	beq $t2, 0x61, MOVE_LEFT # ASCII code of 'a' is 0x61 or 97 in decimal
+	beq $t2, 0x64, MOVE_RIGHT # ASCII code of 'D' is 0x61 or 100 in decimal
+	j AFTER_KEYPRESS
+
+
+################## Quit Game #################################
+QUIT:
+	# Prints the end prompt text
+	li $v0, 4		      
+	la $a0, promptEnd
+	syscall  
+
+	li $v0, 10 # terminate the program gracefully
+	syscall
+
+################## Player Movement ######################################
+MOVE_LEFT:
+
+	# Prints  prompt text
+	li $v0, 4		      
+	la $a0, promptA
+	syscall  
+
+	la $t2, addressChar		#load address for var
+	lw $t1, 0($t2)			# load character address
+
+	add $a0, $t1, $zero		# Store char address in argument register
 	
-	j Final
+	jal ERASE_CHAR			# Erase Character
+
+	la $t3, xposChar		#load char xposition address
+	lw $t4, 0($t3)			# loads xposition
+
+	ble	$t4, $zero, LEFT_UPDATE_DIR	# if xpos is less than 0, don't update the xposition
+
+
+	addi $t4, $t4, -1		# Update xpos variable (subtract 1)
+	sw $t4, 0($t3)			# Update xpos in data
+
+	addi $t1, $t1, -4		# Move character to the left by one unit (4 pixels)
+
+	sw $t1, 0($t2)			# Update char address
+
+	la $a0, addressChar		# Get character address
+	lw $a0, 0($a0)
+
+LEFT_UPDATE_DIR:
+
+	addi $t3, $zero, 0		# Update direction to left (0 means left)
+	la $t2, charHorDir		# load address of character horizontal direction
+	sw $t3, 0($t2)			# Update direction variable
+
+	addi $s0, $zero, 0		# Update direction to left (0 means left)
+
+	jal DRAW_SKY			# draw the sky
+
+	j AFTER_KEYPRESS
+
+##################### Move right #########################
+
+MOVE_RIGHT:
+
+
+
+	la $t2, addressChar		#load address for var
+	lw $t1, 0($t2)			# load character address
+
+	add $a0, $t1, $zero		# Store char address in argument register
 	
+	jal ERASE_CHAR			# erase Character
+
+
+	la $t3, xposChar		# load char xposition address
+	lw $t4, 0($t3)			# loads xposition
+
+	addi $t5, $zero, WIDTH					# store width of screen
+	addi $t5, $t5, -CHARACTER_WIDTH		# caluclate right most xpos where the character remains on screen
+	bge	$t4, $t5, RIGHT_UPDATE_DIR		# if xpos is greater than 64 (the width), don't update the xposition
+
+	addi $t7, $zero, CHARACTER_WIDTH_PIXELS	# store characters wideth in pixels
+	#mult $t5, $t7
+	#mflo $t5
+	add $t5, $t7, $t1					# store top unit on right of character
+
+	addi $t6, $zero, CHARACTER_HEIGHT	# store character height
+	add $t7, $zero, $zero				# loop iterator
+	
+RIGHT_COLLISION:
+	bge $t7, $t6, UPDATE_XPOS			# check each pixel on the right of the character
+	lw $t8, 0($t5)								# load colour at current unit
+	beq $t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform
+	addi $t5, $t5, WIDTH_PIXELS					# get address of next unit
+	addi $t7, $t7, 1						# iterate loop
+	j RIGHT_COLLISION								# jump to beginning of loop
+
+UPDATE_XPOS:
+	addi $t4, $t4, 1		# Update xpos variable (add 1)
+	sw $t4, 0($t3)			# Update xpos in data
+
+	# Prints  prompt text
+	#li $v0, 4		      
+	#la $a0, promptA
+	#syscall  
+
+	addi $t1, $t1, 4		# Move character to the right by one unit (4 pixels)
+
+	sw $t1, 0($t2)			# Update char address
+
+	la $a0, addressChar		#Get character address
+	lw $a0, 0($a0)
+
+RIGHT_UPDATE_DIR:
+
+	# Prints  prompt text
+	li $v0, 1
+	move $a0, $t1
+	syscall  
+
+	#Prints  prompt text
+	li $v0, 4		      
+	la $a0, promptA
+	syscall  
+
+	# Prints  prompt text
+	li $v0, 1
+	move $a0, $t5
+	syscall  
+
+	addi $t3, $zero, 1		# Update direction to right (1 means right)
+	la $t2, charHorDir		# load address of character horizontal direction
+	sw $t3, 0($t2)			# Update direction variable
+
+	addi $s0, $zero, 1		# Update direction to right (1 means right)
+
+	jal DRAW_SKY			# draw the sky
+
+	j AFTER_KEYPRESS
+
+############## Gravity ################################
+GRAVITY:
+
+	addi $sp, $sp, -4	# store $ra on stack
+	sw $ra, 0($sp)
+
+	addi $t0, $zero, CHARACTER_HEIGHT 	# store character height
+	addi $t1, $zero, WIDTH_PIXELS 		# store character height
+	mult $t0, $t1						# get relative address below bottom left of character
+	mflo $t2
+
+	la $t0, addressChar		# get character address
+	lw $t1, 0($t0)			# get character position
+
+	add $t2, $t2, $t1		# get address below bottom left of character
+	#lw $t3, 0($t2)			# get colour below bottom left of character			
+
+	#beq $t2, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom left corner is on a platform
+
+	#add $a0, $zero, $t1		# store character position in $a0
+	#jal ERASE_CHAR			# erase Character
+	#jal DRAW_SKY			# draw the sky
+
+	addi $t3, $zero, CHARACTER_WIDTH 	# store character width
+	addi $t4, $zero, UNIT_WIDTH			# store the number of pixels per unit
+	mult $t3, $t4						# get numbers of pixels to bottom right corner
+	mflo $t3							# store in $t3
+
+	add $t3, $t3, $t2					# store address of unit under bottom right corner
+
+GRAVITY_LOOP:
+	bgt $t2, $t3, APPLY_GRAVITY					# if done checking units below
+	lw $t5, 0($t2)								# load colour at current unit
+	beq $t5, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if pixel is a platform
+	addi $t2, $t2, UNIT_WIDTH					# get address of next unit
+	j GRAVITY_LOOP								# jump to beginning of loop
+	#lw $t3, 0($t2)			# get colour below bottom left of character
+
+	#add $t2, $t2, $t3			# get address below bottom right corner of character
+	#lw $t3, 0($t2)			# get colour below bottom left of character
+
+	#beq $t3, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom right corner is on a platform
+
+	addi $t2, $t1, WIDTH_PIXELS			# move down one row
+	sw $t2, 0($t0)					# update character address
+
+APPLY_GRAVITY:
+
+	addi $t2, $t1, WIDTH_PIXELS			# move down one row
+	sw $t2, 0($t0)						# update character address
+
+	add $a0, $zero, $t1		# store character position in $a0
+	jal ERASE_CHAR			# erase Character
+	jal DRAW_SKY			# draw the sky
+
+MOVE_DOWN_COMPLETE:
+
+	lw $ra, 0($sp)			# pop off prev stored $ra
+	addi $sp, $sp, 4		# update stack pointer
+	jr $ra
+
+################ Repaint ##################################
 	
 #####################  Painting Functions  ################################
 
@@ -177,9 +414,9 @@ DRAW_BACKGROUND:
 	li $t3, BLUE					# $t3 stores the blue colour code
 
 	addi $t4, $zero, BASE_ADDRESS
-	addi $t5, $t4, 16384 			# Store bottom right unit in s5
+	addi $t5, $t4, 16384 			# Store bottom right unit in t5
 	
-	la $s6, backgroundColours 		# $t0 stores the base address for display
+	la $t6, backgroundColours 		# $t0 stores the base address for display
 	
 	
 IF:	
@@ -364,10 +601,21 @@ ROW_END:
 	j MOVE_ROW
 REC_END:
 	jr $ra
-	
-################# Draw character facing left #############################
 
-DRAW_CHAR:
+################# Draw character #################################
+
+#DRAW_CHAR:
+
+	#addi $sp, $sp, -4		# move stack pointer
+	#sw $ra, 0($sp)			#store caller address
+
+	#la $to, $s0		# get address of char direction 
+	#lw $t0, 0($t0)			# get value of direction
+	#beq $s0, $zero, DRAW_LEFT
+
+################# Draw character facing RIGHT #############################
+
+DRAW_CHAR_RIGHT:
 	add $t0, $zero, BROWN   # Store brown
 	sw $t0, 0($a0)			# Colour specified pixels brown
 	sw $t0, 4($a0)
@@ -422,9 +670,9 @@ DRAW_CHAR:
 	sw $t0, 2064($a0)
 	jr $ra
 
-############ Draw character facing right ########################
+############ Draw character facing LEFT ########################
 
-DRAW_CHAR_RIGHT:
+DRAW_CHAR_LEFT:
 	add $t0, $zero, BROWN   # Store brown
 	sw $t0, 0($a0)			# Colour specified pixels brown
 	sw $t0, 4($a0)
@@ -474,6 +722,56 @@ DRAW_CHAR_RIGHT:
 	sw $t0, 1552($a0)
 
 	add $t0, $zero, BLACK   # Paint pixels light purple
+	sw $t0, 2048($a0)
+	sw $t0, 2052($a0)
+	sw $t0, 2060($a0)
+	sw $t0, 2064($a0)
+	jr $ra
+
+############ Repaint character green ########################
+
+ERASE_CHAR:
+	add $t0, $zero, LIGHT_GREEN   # Store light green
+	sw $t0, 0($a0)			
+	sw $t0, 4($a0)
+	sw $t0, 8($a0)
+	sw $t0, 12($a0)
+	sw $t0, 16($a0)
+	sw $t0, 272($a0)
+	sw $t0, 528($a0)
+	sw $t0, 768($a0)
+	sw $t0, 772($a0)
+	sw $t0, 776($a0)
+	sw $t0, 780($a0)
+	sw $t0, 784($a0)
+	sw $t0, 256($a0)
+	sw $t0, 260($a0)
+	sw $t0, 512($a0)
+	sw $t0, 516($a0)
+	sw $t0, 264($a0)
+	sw $t0, 268($a0)
+	sw $t0, 520($a0)
+	sw $t0, 524($a0)
+	sw $t0, 1792($a0)
+	sw $t0, 1796($a0)
+	sw $t0, 1804($a0)
+	sw $t0, 1808($a0)
+	sw $t0, 768($a0)
+	sw $t0, 1024($a0)
+	sw $t0, 1028($a0)
+	sw $t0, 1032($a0)
+	sw $t0, 1036($a0)
+	sw $t0, 1040($a0)
+	sw $t0, 1280($a0)
+	sw $t0, 1284($a0)
+	sw $t0, 1288($a0)
+	sw $t0, 1292($a0)
+	sw $t0, 1296($a0)
+	sw $t0, 1536($a0)
+	sw $t0, 1540($a0)
+	sw $t0, 1544($a0)
+	sw $t0, 1548($a0)
+	sw $t0, 1552($a0)
 	sw $t0, 2048($a0)
 	sw $t0, 2052($a0)
 	sw $t0, 2060($a0)
