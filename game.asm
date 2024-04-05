@@ -47,9 +47,9 @@
 promptEnd: .asciiz "End of program "
 promptA: .asciiz "pressed a"
 
-pL1xpos: .word 0x0000000, 0x0000010, 0x0000024, 0x00000E, 0x000001B
+pL1xpos: .word 0x0000000, 0x0000010, 0x000002B, 0x00000E, 0x000001B
 pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001E, 0x0000011
-pL1width: .word 0x0000010, 0x0000012, 0x0000015, 0x000012, 0x0000015
+pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000015
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
@@ -61,9 +61,9 @@ charHorDir:	.word 1
 # 0 - left
 # 1 - right
 charVerDir: .word 0
-# 0 - platform
+# 0 - otherwise
 # 1 - jumping up
-# 2 - falling
+jumpTimer: .word 0
 
 .eqv BASE_ADDRESS 0x10008000
 
@@ -74,6 +74,8 @@ charVerDir: .word 0
 .eqv CHARACTER_WIDTH_PIXELS 20
 .eqv CHARACTER_HEIGHT 9
 .eqv UNIT_WIDTH 4
+
+.eqv JUMP_TIME_LENGTH 15
 
 .eqv BROWN 0x735032
 .eqv LIGHT_BROWN 0xde9557
@@ -169,7 +171,7 @@ charVerDir: .word 0
 ################## Main Loop #################################
 MAIN:
 	li $v0, 32
-	li $a0, 40 	# Wait one second (1000 milliseconds)
+	li $a0, 35 	# Wait one second (1000 milliseconds)
 	syscall
 
 	#keyboard press
@@ -179,7 +181,14 @@ MAIN:
 
 AFTER_KEYPRESS:
 
+	ble $s1, $zero, ACTIVATE_GRAVITY	# If not jumping then activate gravity
+	jal MOVE_UP							# If jumping, then move up
+	J MAIN_DRAW_CHAR					# skip gravity
+
+ACTIVATE_GRAVITY:
 	jal GRAVITY
+
+MAIN_DRAW_CHAR:
 
 	la $a0, addressChar		#Get character address
 	lw $a0, 0($a0)
@@ -200,7 +209,8 @@ keypress_happened:
 	lw $t2, 4($t9) # this assumes $t9 is set to 0xfff0000 from before
 	beq $t2, 0x71, QUIT # ASCII code of 'q' is 0x71 or 113 in decimal
 	beq $t2, 0x61, MOVE_LEFT # ASCII code of 'a' is 0x61 or 97 in decimal
-	beq $t2, 0x64, MOVE_RIGHT # ASCII code of 'D' is 0x61 or 100 in decimal
+	beq $t2, 0x64, MOVE_RIGHT # ASCII code of 'd' is 0x61 or 100 in decimal
+	beq $t2, 0x77, START_JUMP #ASCII code of 'w' is 0x77 or 119 in decimal
 	j AFTER_KEYPRESS
 
 
@@ -215,6 +225,75 @@ QUIT:
 	syscall
 
 ################## Player Movement ######################################
+###### Start jump ##############
+START_JUMP:
+
+	bne 	$s1, $zero, END_OF_START_JUMP	# If already jumping or falling, don't jump
+	addi 	$s1, $zero, 1					# set jump variable to true
+
+	la 		$t0, jumpTimer					# get address of jump timer
+
+	addi 	$t1, $zero, JUMP_TIME_LENGTH	# get time that jump should last
+	sw 		$t1, 0($t0)						# update time length of jump
+
+END_OF_START_JUMP:
+	jr 		$ra								# return to caller
+
+############### Move Up ###################################
+MOVE_UP:
+
+	addi $sp, $sp, -4	# store $ra on stack
+	sw $ra, 0($sp)
+
+	#addi $t0, $zero, CHARACTER_HEIGHT 	# store character height
+	#addi $t1, $zero, WIDTH_PIXELS 		# store character height
+	#mult $t0, $t1						# get relative address below bottom left of character
+	#mflo $t2
+
+	la $t0, addressChar		# get character address
+	lw $t1, 0($t0)			# get character position
+
+	addi $t2, $t1, -WIDTH_PIXELS				# store address of nit above top left of character
+
+	addi $t3, $t2, CHARACTER_WIDTH_PIXELS 		# store unit above right corner of character
+
+UP_LOOP:
+	bgt $t2, $t3, APPLY_JUMP					# if done checking units above, then move up
+	lw $t5, 0($t2)								# load colour at current unit
+	beq $t5, DARK_GREEN, DONE_JUMP				# if unit is a platform then move down
+	addi $t2, $t2, UNIT_WIDTH					# get address of next unit
+	j UP_LOOP									# jump to beginning of loop
+
+APPLY_JUMP:
+
+	addi $t2, $t1, -WIDTH_PIXELS				# move up one row
+	sw $t2, 0($t0)								# update character address
+
+	add $a0, $zero, $t1							# store character position in $a0
+	jal ERASE_CHAR								# erase Character
+	#jal DRAW_SKY								# draw the sky
+
+	la $t3, jumpTimer							# get address of jump timer
+	lw $t4, 0($t3)								# load time remaining jump
+
+	addi $t4, $t4, -1							# subtract 1 from timer
+	sw $t4, 0($t3)								# supdate time remaining of jump
+
+	ble $t4, $zero, DONE_JUMP					# finish jump if remaining jump time is set to 0
+	j END_OF_JUMP_FUNC							# otherwise branch to end of the function
+
+DONE_JUMP:
+
+	addi $s1, $zero, 0							# set jumping variable to false
+
+END_OF_JUMP_FUNC:
+
+	lw $ra, 0($sp)								# pop off prev stored $ra
+	addi $sp, $sp, 4							# update stack pointer
+	jr $ra
+
+############# Move left ############################
+
 MOVE_LEFT:
 
 	# Prints  prompt text
@@ -253,7 +332,7 @@ LEFT_UPDATE_DIR:
 
 	addi $s0, $zero, 0		# Update direction to left (0 means left)
 
-	jal DRAW_SKY			# draw the sky
+	#jal DRAW_SKY			# draw the sky
 
 	j AFTER_KEYPRESS
 
@@ -261,81 +340,57 @@ LEFT_UPDATE_DIR:
 
 MOVE_RIGHT:
 
+	la 		$t2, addressChar		#load address for var
+	lw 		$t1, 0($t2)			# load character address
 
-
-	la $t2, addressChar		#load address for var
-	lw $t1, 0($t2)			# load character address
-
-	add $a0, $t1, $zero		# Store char address in argument register
+	add 	$a0, $t1, $zero		# Store char address in argument register
 	
-	jal ERASE_CHAR			# erase Character
+	jal 	ERASE_CHAR			# erase Character
 
 
-	la $t3, xposChar		# load char xposition address
-	lw $t4, 0($t3)			# loads xposition
+	la 		$t3, xposChar		# load char xposition address
+	lw 		$t4, 0($t3)			# loads xposition
 
-	addi $t5, $zero, WIDTH					# store width of screen
-	addi $t5, $t5, -CHARACTER_WIDTH		# caluclate right most xpos where the character remains on screen
-	bge	$t4, $t5, RIGHT_UPDATE_DIR		# if xpos is greater than 64 (the width), don't update the xposition
+	addi 	$t5, $zero, WIDTH					# store width of screen
+	addi 	$t5, $t5, -CHARACTER_WIDTH			# caluclate right most xpos where the character remains on screen
+	bge		$t4, $t5, RIGHT_UPDATE_DIR			# if xpos is greater than 64 (the width), don't update the xposition
 
-	addi $t7, $zero, CHARACTER_WIDTH_PIXELS	# store characters wideth in pixels
-	#mult $t5, $t7
-	#mflo $t5
-	add $t5, $t7, $t1					# store top unit on right of character
+	addi 	$t7, $zero, CHARACTER_WIDTH_PIXELS		# store characters width in pixels
+	add 	$t5, $t7, $t1							# store top unit on right of character
 
-	addi $t6, $zero, CHARACTER_HEIGHT	# store character height
-	add $t7, $zero, $zero				# loop iterator
+	addi 	$t6, $zero, CHARACTER_HEIGHT	# store character height
+	add 	$t7, $zero, $zero				# loop iterator
 	
 RIGHT_COLLISION:
-	bge $t7, $t6, UPDATE_XPOS			# check each pixel on the right of the character
-	lw $t8, 0($t5)								# load colour at current unit
-	beq $t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform
-	addi $t5, $t5, WIDTH_PIXELS					# get address of next unit
-	addi $t7, $t7, 1						# iterate loop
-	j RIGHT_COLLISION								# jump to beginning of loop
+	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
+	lw 		$t8, 0($t5)								# load colour at current unit
+	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
+	addi 	$t7, $t7, 1								# inecrease iterator
+	j 		RIGHT_COLLISION							# jump to beginning of loop
 
 UPDATE_XPOS:
-	addi $t4, $t4, 1		# Update xpos variable (add 1)
-	sw $t4, 0($t3)			# Update xpos in data
+	addi 	$t4, $t4, 1			# Update xpos variable (add 1)
+	sw 		$t4, 0($t3)			# Update xpos in data
 
-	# Prints  prompt text
-	#li $v0, 4		      
-	#la $a0, promptA
-	#syscall  
+	addi 	$t1, $t1, 4			# Move character to the right by one unit (4 pixels)
 
-	addi $t1, $t1, 4		# Move character to the right by one unit (4 pixels)
+	sw 		$t1, 0($t2)			# Update char address
 
-	sw $t1, 0($t2)			# Update char address
-
-	la $a0, addressChar		#Get character address
-	lw $a0, 0($a0)
+	#la 		$a0, addressChar	# Get character address
+	#lw 		$a0, 0($a0)
 
 RIGHT_UPDATE_DIR:
 
-	# Prints  prompt text
-	li $v0, 1
-	move $a0, $t1
-	syscall  
+	addi 	$t3, $zero, 1		# Update direction to right (1 means right)
+	la 		$t2, charHorDir		# load address of character horizontal direction
+	sw 		$t3, 0($t2)			# Update direction variable
 
-	#Prints  prompt text
-	li $v0, 4		      
-	la $a0, promptA
-	syscall  
+	addi 	$s0, $zero, 1		# Update direction to right (1 means right)
 
-	# Prints  prompt text
-	li $v0, 1
-	move $a0, $t5
-	syscall  
+	#jal 	DRAW_SKY			# draw the sky
 
-	addi $t3, $zero, 1		# Update direction to right (1 means right)
-	la $t2, charHorDir		# load address of character horizontal direction
-	sw $t3, 0($t2)			# Update direction variable
-
-	addi $s0, $zero, 1		# Update direction to right (1 means right)
-
-	jal DRAW_SKY			# draw the sky
-
-	j AFTER_KEYPRESS
+	j 		AFTER_KEYPRESS
 
 ############## Gravity ################################
 GRAVITY:
@@ -368,9 +423,9 @@ GRAVITY:
 	add $t3, $t3, $t2					# store address of unit under bottom right corner
 
 GRAVITY_LOOP:
-	bgt $t2, $t3, APPLY_GRAVITY					# if done checking units below
+	bge $t2, $t3, APPLY_GRAVITY					# if done checking units below
 	lw $t5, 0($t2)								# load colour at current unit
-	beq $t5, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if pixel is a platform
+	beq $t5, DARK_GREEN, ON_PLATFORM		# Check if pixel is a platform
 	addi $t2, $t2, UNIT_WIDTH					# get address of next unit
 	j GRAVITY_LOOP								# jump to beginning of loop
 	#lw $t3, 0($t2)			# get colour below bottom left of character
@@ -380,17 +435,24 @@ GRAVITY_LOOP:
 
 	#beq $t3, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom right corner is on a platform
 
-	addi $t2, $t1, WIDTH_PIXELS			# move down one row
-	sw $t2, 0($t0)					# update character address
+	#addi $t2, $t1, WIDTH_PIXELS			# move down one row
+	#sw $t2, 0($t0)						# update character address
+
+ON_PLATFORM:
+	addi $s1, $zero, 0				# set jump variable to 0 to indicate on platform
+	j MOVE_DOWN_COMPLETE			# jump to end of function
+	
 
 APPLY_GRAVITY:
 
 	addi $t2, $t1, WIDTH_PIXELS			# move down one row
 	sw $t2, 0($t0)						# update character address
+	
+	addi $s1, $zero, -1					# set jump variable to -1 to indicate moving down
 
 	add $a0, $zero, $t1		# store character position in $a0
 	jal ERASE_CHAR			# erase Character
-	jal DRAW_SKY			# draw the sky
+	#jal DRAW_SKY			# draw the sky
 
 MOVE_DOWN_COMPLETE:
 
