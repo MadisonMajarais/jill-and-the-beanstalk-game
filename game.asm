@@ -119,86 +119,60 @@ jumpTimer: .word 0
 
 #####################################################
 
-	la $t3, xposChar		#load char xposition address
-	lw $t4, 0($t3)			# loads xposition
+	la 		$t3, xposChar		# load char xposition address
+	lw 		$t4, 0($t3)			# loads xposition
 
-	addi $t4, $zero, 0		# set xposition variable to 0
+	addi 	$t4, $zero, 0		# set xposition variable to 0
 
-	sw $t4, 0($t3)			# Update xpos variable in memory
+	sw 		$t4, 0($t3)			# Update xpos variable in memory
 	
-	jal DRAW_L1			# Draw Level 1
+	jal 	DRAW_L1				# Draw Level 1
 	
-	#la $s0, xpos
-	#la $s1, ypos
+	la 		$a0, addressBee
+	lw 		$a0, 0($a0)
 	
-	# Draw character
-	#lw $s3, 0($s0)		#$s3 = xpos[i]
-	#sw $s3, -4($sp) 	# push xpos onto stack
-	#lw $s3, 0($s1)		#$s3 = ypos[i]
-	#sw $s3, -8($sp) 	# push ypos onto stack
+	jal 	DRAW_BEE
 	
-	#addi $sp, $sp, -8 	# move pointer to make space
+	la 		$a0, addressWater
+	lw 		$a0, 0($a0)
 	
-	#la $a0, addressChar
-	#lw $a0, 0($a0)
-	
-	#jal DRAW_CHAR
-	
-	#la $a0, addressChar
-	#lw $a0, 0($a0)
-	
-	#jal DRAW_CHAR_RIGHT
-	
-	la $a0, addressBee
-	lw $a0, 0($a0)
-	
-	jal DRAW_BEE
-	
-	la $a0, addressWater
-	lw $a0, 0($a0)
-	
-	jal DRAW_WATER
+	jal 	DRAW_WATER
 
-	
-	
-	la $a0, BASE_ADDRESS
-	#lw $a0, ($a0)
-	
-	#jal DRAW_CHAR_RIGHT
+	la 		$a0, BASE_ADDRESS
 	
 	j MAIN
 
 ################## Main Loop #################################
 MAIN:
-	li $v0, 32
-	li $a0, 40 	# Wait one second (1000 milliseconds)
+	li 		$v0, 32
+	li 		$a0, 40 						# Wait one second (1000 milliseconds)
 	syscall
 
 	#keyboard press
-	li $t9, 0xffff0000
-	lw $t8, 0($t9)
-	beq $t8, 1, keypress_happened
+	li 		$t9, 0xffff0000
+	lw 		$t8, 0($t9)
+	beq 	$t8, 1, keypress_happened
 
 AFTER_KEYPRESS:
 
-	ble $s1, $zero, ACTIVATE_GRAVITY	# If not jumping then activate gravity
-	jal MOVE_UP							# If jumping, then move up
-	J MAIN_DRAW_CHAR					# skip gravity
+	ble 	$s1, $zero, ACTIVATE_GRAVITY	# If not jumping then activate gravity
+	jal 	MOVE_UP							# If jumping, then move up
+	J 		MAIN_DRAW_CHAR					# skip gravity
 
 ACTIVATE_GRAVITY:
-	jal GRAVITY
+	jal 	GRAVITY
 
 MAIN_DRAW_CHAR:
 
-	la $a0, addressChar		#Get character address
-	lw $a0, 0($a0)
+	la 		$a0, addressChar				# Get character address
+	lw 		$a0, 0($a0)
 
-	beq $s0, $zero, LEFT
+	beq 	$s0, $zero, LEFT
 RIGHT:
-	jal DRAW_CHAR_RIGHT
-	J AFTER_CHAR_DRAW
+	jal 	DRAW_CHAR_RIGHT
+	J 		AFTER_CHAR_DRAW
 LEFT:
-	jal DRAW_CHAR_LEFT		# Draw Character
+	jal 	DRAW_CHAR_LEFT					# Draw Character
 
 AFTER_CHAR_DRAW:
 
@@ -206,22 +180,22 @@ AFTER_CHAR_DRAW:
 ############# Keyboard press ###############################
 
 keypress_happened:
-	lw $t2, 4($t9) # this assumes $t9 is set to 0xfff0000 from before
-	beq $t2, 0x71, QUIT # ASCII code of 'q' is 0x71 or 113 in decimal
-	beq $t2, 0x61, MOVE_LEFT # ASCII code of 'a' is 0x61 or 97 in decimal
-	beq $t2, 0x64, MOVE_RIGHT # ASCII code of 'd' is 0x61 or 100 in decimal
-	beq $t2, 0x77, START_JUMP #ASCII code of 'w' is 0x77 or 119 in decimal
-	j AFTER_KEYPRESS
+	lw 		$t2, 4($t9) 			# this assumes $t9 is set to 0xfff0000 from before
+	beq 	$t2, 0x71, QUIT 		# ASCII code of 'q' is 0x71 or 113 in decimal
+	beq 	$t2, 0x61, MOVE_LEFT 	# ASCII code of 'a' is 0x61 or 97 in decimal
+	beq 	$t2, 0x64, MOVE_RIGHT 	# ASCII code of 'd' is 0x61 or 100 in decimal
+	beq 	$t2, 0x77, START_JUMP 	# ASCII code of 'w' is 0x77 or 119 in decimal
+	j 		AFTER_KEYPRESS
 
 
 ################## Quit Game #################################
 QUIT:
-	# Prints the end prompt text
-	li $v0, 4		      
-	la $a0, promptEnd
+	
+	li 		$v0, 4		      
+	la 		$a0, promptEnd				# Prints the end prompt text
 	syscall  
 
-	li $v0, 10 # terminate the program gracefully
+	li 		$v0, 10 						# terminate the program gracefully
 	syscall
 
 ################## Player Movement ######################################
@@ -242,99 +216,94 @@ END_OF_START_JUMP:
 ############### Move Up ###################################
 MOVE_UP:
 
-	addi $sp, $sp, -4	# store $ra on stack
-	sw $ra, 0($sp)
+	addi 	$sp, $sp, -4						# store $ra on stack
+	sw 		$ra, 0($sp)
 
-	#addi $t0, $zero, CHARACTER_HEIGHT 	# store character height
-	#addi $t1, $zero, WIDTH_PIXELS 		# store character height
-	#mult $t0, $t1						# get relative address below bottom left of character
-	#mflo $t2
+	la 		$t0, addressChar					# get character address
+	lw 		$t1, 0($t0)							# get character position
 
-	la $t0, addressChar		# get character address
-	lw $t1, 0($t0)			# get character position
+	addi 	$t2, $t1, -WIDTH_PIXELS				# store address of nit above top left of character
 
-	addi $t2, $t1, -WIDTH_PIXELS				# store address of nit above top left of character
-
-	addi $t3, $t2, CHARACTER_WIDTH_PIXELS 		# store unit above right corner of character
+	addi 	$t3, $t2, CHARACTER_WIDTH_PIXELS 		# store unit above right corner of character
 
 UP_LOOP:
-	bgt $t2, $t3, APPLY_JUMP					# if done checking units above, then move up
-	lw $t5, 0($t2)								# load colour at current unit
-	beq $t5, DARK_GREEN, DONE_JUMP				# if unit is a platform then move down
-	addi $t2, $t2, UNIT_WIDTH					# get address of next unit
-	j UP_LOOP									# jump to beginning of loop
+	bgt 	$t2, $t3, APPLY_JUMP					# if done checking units above, then move up
+	lw 		$t5, 0($t2)								# load colour at current unit
+	beq 	$t5, DARK_GREEN, DONE_JUMP				# if unit is a platform then move down
+	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
+	j 		UP_LOOP									# jump to beginning of loop
 
 APPLY_JUMP:
 
-	addi $t2, $t1, -WIDTH_PIXELS				# move up one row
-	sw $t2, 0($t0)								# update character address
+	addi 	$t2, $t1, -WIDTH_PIXELS					# move up one row
+	sw 		$t2, 0($t0)								# update character address
 
-	add $a0, $zero, $t1							# store character position in $a0
-	jal ERASE_CHAR								# erase Character
-	#jal DRAW_SKY								# draw the sky
+	add 	$a0, $zero, $t1							# store character position in $a0
+	jal 	ERASE_CHAR								# erase Character
+	#jal DRAW_SKY									# draw the sky
 
-	la $t3, jumpTimer							# get address of jump timer
-	lw $t4, 0($t3)								# load time remaining jump
+	la 		$t3, jumpTimer							# get address of jump timer
+	lw 		$t4, 0($t3)								# load time remaining jump
 
-	addi $t4, $t4, -1							# subtract 1 from timer
-	sw $t4, 0($t3)								# supdate time remaining of jump
+	addi 	$t4, $t4, -1							# subtract 1 from timer
+	sw 		$t4, 0($t3)								# supdate time remaining of jump
 
-	ble $t4, $zero, DONE_JUMP					# finish jump if remaining jump time is set to 0
-	j END_OF_JUMP_FUNC							# otherwise branch to end of the function
+	ble 	$t4, $zero, DONE_JUMP					# finish jump if remaining jump time is set to 0
+	j 		END_OF_JUMP_FUNC						# otherwise branch to end of the function
 
 DONE_JUMP:
 
-	addi $s1, $zero, -1							# set y direction variable to down (i.e. -1)
+	addi 	$s1, $zero, -1							# set y direction variable to down (i.e. -1)
 
 END_OF_JUMP_FUNC:
 
-	lw $ra, 0($sp)								# pop off prev stored $ra
-	addi $sp, $sp, 4							# update stack pointer
-	jr $ra
+	lw 		$ra, 0($sp)								# pop off prev stored $ra
+	addi 	$sp, $sp, 4								# update stack pointer
+	jr 		$ra
 
 ############# Move left ############################
 
 MOVE_LEFT:
 
 	# Prints  prompt text
-	li $v0, 4		      
-	la $a0, promptA
+	li 		$v0, 4		      
+	la 		$a0, promptA
 	syscall  
 
-	la $t2, addressChar		#load address for var
-	lw $t1, 0($t2)			# load character address
+	la 		$t2, addressChar	# load address for var
+	lw 		$t1, 0($t2)			# load character address
 
-	add $a0, $t1, $zero		# Store char address in argument register
+	add 	$a0, $t1, $zero		# Store char address in argument register
 	
-	jal ERASE_CHAR			# Erase Character
+	jal 	ERASE_CHAR			# Erase Character
 
-	la $t3, xposChar		#load char xposition address
-	lw $t4, 0($t3)			# loads xposition
+	la 		$t3, xposChar		#load char xposition address
+	lw 		$t4, 0($t3)			# loads xposition
 
-	ble	$t4, $zero, LEFT_UPDATE_DIR	# if xpos is less than 0, don't update the xposition
+	ble		$t4, $zero, LEFT_UPDATE_DIR		# if xpos is less than 0, don't update the xposition
 
 
-	addi $t4, $t4, -1		# Update xpos variable (subtract 1)
-	sw $t4, 0($t3)			# Update xpos in data
+	addi 	$t4, $t4, -1		# Update xpos variable (subtract 1)
+	sw 		$t4, 0($t3)			# Update xpos in data
 
-	addi $t1, $t1, -4		# Move character to the left by one unit (4 pixels)
+	addi 	$t1, $t1, -4		# Move character to the left by one unit (4 pixels)
 
-	sw $t1, 0($t2)			# Update char address
+	sw 		$t1, 0($t2)			# Update char address
 
-	la $a0, addressChar		# Get character address
-	lw $a0, 0($a0)
+	la 		$a0, addressChar	# Get character address
+	lw 		$a0, 0($a0)
 
 LEFT_UPDATE_DIR:
 
-	addi $t3, $zero, 0		# Update direction to left (0 means left)
-	la $t2, charHorDir		# load address of character horizontal direction
-	sw $t3, 0($t2)			# Update direction variable
+	addi 	$t3, $zero, 0		# Update direction to left (0 means left)
+	la 		$t2, charHorDir		# load address of character horizontal direction
+	sw 		$t3, 0($t2)			# Update direction variable
 
-	addi $s0, $zero, 0		# Update direction to left (0 means left)
+	addi 	$s0, $zero, 0		# Update direction to left (0 means left)
 
-	#jal DRAW_SKY			# draw the sky
+	#jal DRAW_SKY				# draw the sky
 
-	j AFTER_KEYPRESS
+	j 		AFTER_KEYPRESS
 
 ##################### Move right #########################
 
@@ -395,18 +364,18 @@ RIGHT_UPDATE_DIR:
 ############## Gravity ################################
 GRAVITY:
 
-	addi $sp, $sp, -4	# store $ra on stack
-	sw $ra, 0($sp)
+	addi 	$sp, $sp, -4	# store $ra on stack
+	sw 		$ra, 0($sp)
 
-	addi $t0, $zero, CHARACTER_HEIGHT 	# store character height
-	addi $t1, $zero, WIDTH_PIXELS 		# store character height
-	mult $t0, $t1						# get relative address below bottom left of character
-	mflo $t2
+	addi 	$t0, $zero, CHARACTER_HEIGHT 	# store character height
+	addi 	$t1, $zero, WIDTH_PIXELS 		# store character height
+	mult 	$t0, $t1						# get relative address below bottom left of character
+	mflo 	$t2
 
-	la $t0, addressChar		# get character address
-	lw $t1, 0($t0)			# get character position
+	la 		$t0, addressChar		# get character address
+	lw 		$t1, 0($t0)				# get character position
 
-	add $t2, $t2, $t1		# get address below bottom left of character
+	add 	$t2, $t2, $t1		# get address below bottom left of character
 	#lw $t3, 0($t2)			# get colour below bottom left of character			
 
 	#beq $t2, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom left corner is on a platform
@@ -415,19 +384,19 @@ GRAVITY:
 	#jal ERASE_CHAR			# erase Character
 	#jal DRAW_SKY			# draw the sky
 
-	addi $t3, $zero, CHARACTER_WIDTH 	# store character width
-	addi $t4, $zero, UNIT_WIDTH			# store the number of pixels per unit
-	mult $t3, $t4						# get numbers of pixels to bottom right corner
-	mflo $t3							# store in $t3
+	addi 	$t3, $zero, CHARACTER_WIDTH 	# store character width
+	addi 	$t4, $zero, UNIT_WIDTH			# store the number of pixels per unit
+	mult 	$t3, $t4						# get numbers of pixels to bottom right corner
+	mflo 	$t3								# store in $t3
 
-	add $t3, $t3, $t2					# store address of unit under bottom right corner
+	add 	$t3, $t3, $t2					# store address of unit under bottom right corner
 
 GRAVITY_LOOP:
-	bge $t2, $t3, APPLY_GRAVITY					# if done checking units below
-	lw $t5, 0($t2)								# load colour at current unit
-	beq $t5, DARK_GREEN, ON_PLATFORM		# Check if pixel is a platform
-	addi $t2, $t2, UNIT_WIDTH					# get address of next unit
-	j GRAVITY_LOOP								# jump to beginning of loop
+	bge 	$t2, $t3, APPLY_GRAVITY					# if done checking units below
+	lw 		$t5, 0($t2)								# load colour at current unit
+	beq 	$t5, DARK_GREEN, ON_PLATFORM			# Check if pixel is a platform
+	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
+	j 		GRAVITY_LOOP								# jump to beginning of loop
 	#lw $t3, 0($t2)			# get colour below bottom left of character
 
 	#add $t2, $t2, $t3			# get address below bottom right corner of character
@@ -439,26 +408,26 @@ GRAVITY_LOOP:
 	#sw $t2, 0($t0)						# update character address
 
 ON_PLATFORM:
-	addi $s1, $zero, 0				# set jump variable to 0 to indicate on platform
-	j MOVE_DOWN_COMPLETE			# jump to end of function
+	addi 	$s1, $zero, 0				# set jump variable to 0 to indicate on platform
+	j 		MOVE_DOWN_COMPLETE			# jump to end of function
 	
 
 APPLY_GRAVITY:
 
-	addi $t2, $t1, WIDTH_PIXELS			# move down one row
-	sw $t2, 0($t0)						# update character address
+	addi 	$t2, $t1, WIDTH_PIXELS			# move down one row
+	sw 		$t2, 0($t0)						# update character address
 	
-	addi $s1, $zero, -1					# set jump variable to -1 to indicate moving down
+	addi 	$s1, $zero, -1					# set jump variable to -1 to indicate moving down
 
-	add $a0, $zero, $t1		# store character position in $a0
-	jal ERASE_CHAR			# erase Character
+	add 	$a0, $zero, $t1		# store character position in $a0
+	jal 	ERASE_CHAR			# erase Character
 	#jal DRAW_SKY			# draw the sky
 
 MOVE_DOWN_COMPLETE:
 
-	lw $ra, 0($sp)			# pop off prev stored $ra
-	addi $sp, $sp, 4		# update stack pointer
-	jr $ra
+	lw 		$ra, 0($sp)			# pop off prev stored $ra
+	addi 	$sp, $sp, 4		# update stack pointer
+	jr 		$ra
 
 ################ Repaint ##################################
 	
