@@ -171,7 +171,7 @@ jumpTimer: .word 0
 ################## Main Loop #################################
 MAIN:
 	li $v0, 32
-	li $a0, 35 	# Wait one second (1000 milliseconds)
+	li $a0, 40 	# Wait one second (1000 milliseconds)
 	syscall
 
 	#keyboard press
@@ -284,7 +284,7 @@ APPLY_JUMP:
 
 DONE_JUMP:
 
-	addi $s1, $zero, 0							# set jumping variable to false
+	addi $s1, $zero, -1							# set y direction variable to down (i.e. -1)
 
 END_OF_JUMP_FUNC:
 
@@ -340,16 +340,16 @@ LEFT_UPDATE_DIR:
 
 MOVE_RIGHT:
 
-	la 		$t2, addressChar		#load address for var
-	lw 		$t1, 0($t2)			# load character address
+	la 		$t2, addressChar					# load address for var
+	lw 		$t1, 0($t2)							# load character address
 
-	add 	$a0, $t1, $zero		# Store char address in argument register
+	add 	$a0, $t1, $zero						# Store char address in argument register
 	
-	jal 	ERASE_CHAR			# erase Character
+	jal 	ERASE_CHAR							# erase Character
 
 
-	la 		$t3, xposChar		# load char xposition address
-	lw 		$t4, 0($t3)			# loads xposition
+	la 		$t3, xposChar						# load char xposition address
+	lw 		$t4, 0($t3)							# loads xposition
 
 	addi 	$t5, $zero, WIDTH					# store width of screen
 	addi 	$t5, $t5, -CHARACTER_WIDTH			# caluclate right most xpos where the character remains on screen
@@ -358,8 +358,8 @@ MOVE_RIGHT:
 	addi 	$t7, $zero, CHARACTER_WIDTH_PIXELS		# store characters width in pixels
 	add 	$t5, $t7, $t1							# store top unit on right of character
 
-	addi 	$t6, $zero, CHARACTER_HEIGHT	# store character height
-	add 	$t7, $zero, $zero				# loop iterator
+	addi 	$t6, $zero, CHARACTER_HEIGHT			# store character height
+	add 	$t7, $zero, $zero						# loop iterator
 	
 RIGHT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
@@ -370,10 +370,10 @@ RIGHT_COLLISION:
 	j 		RIGHT_COLLISION							# jump to beginning of loop
 
 UPDATE_XPOS:
-	addi 	$t4, $t4, 1			# Update xpos variable (add 1)
+	addi 	$t4, $t4, 2			# Update xpos variable (add 2)
 	sw 		$t4, 0($t3)			# Update xpos in data
 
-	addi 	$t1, $t1, 4			# Move character to the right by one unit (4 pixels)
+	addi 	$t1, $t1, 8			# Move character to the right by two units (8 pixels)
 
 	sw 		$t1, 0($t2)			# Update char address
 
