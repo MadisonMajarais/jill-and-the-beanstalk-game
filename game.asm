@@ -53,7 +53,7 @@ pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000015
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
-addressChar: .word 0x10008000
+addressChar: .word 0x1000A800
 addressBee: .word 0x10008000
 addressWater: .word 0x10008528
 charJumpTimer: .word 10
@@ -74,6 +74,7 @@ jumpTimer: .word 0
 .eqv CHARACTER_WIDTH_PIXELS 20
 .eqv CHARACTER_HEIGHT 9
 .eqv UNIT_WIDTH 4
+.eqv CHAR_START_ADDRESS 0x1000A800
 
 .eqv JUMP_TIME_LENGTH 15
 
@@ -117,14 +118,20 @@ jumpTimer: .word 0
 
 .text
 
-#####################################################
-
+############# Start Game #########################
+START_GAME:
 	la 		$t3, xposChar		# load char xposition address
 	lw 		$t4, 0($t3)			# loads xposition
 
 	addi 	$t4, $zero, 0		# set xposition variable to 0
 
+	addi 	$t4, $zero, 0		# set xposition variable to 0
+
 	sw 		$t4, 0($t3)			# Update xpos variable in memory
+
+	la 		$t3, addressChar	# load char address
+	addi 	$t4, $zero, CHAR_START_ADDRESS	# # store start address for character
+	sw 		$t4, 0($t3)			# stores character address
 	
 	jal 	DRAW_L1				# Draw Level 1
 	
@@ -139,6 +146,8 @@ jumpTimer: .word 0
 	jal 	DRAW_WATER
 
 	la 		$a0, BASE_ADDRESS
+
+
 	
 	j MAIN
 
@@ -185,6 +194,7 @@ keypress_happened:
 	beq 	$t2, 0x61, MOVE_LEFT 	# ASCII code of 'a' is 0x61 or 97 in decimal
 	beq 	$t2, 0x64, MOVE_RIGHT 	# ASCII code of 'd' is 0x61 or 100 in decimal
 	beq 	$t2, 0x77, START_JUMP 	# ASCII code of 'w' is 0x77 or 119 in decimal
+	beq 	$t2, 0x72, START_GAME 	# ASCII code of 'r' is 0x72 or 114 in decimal
 	j 		AFTER_KEYPRESS
 
 
@@ -282,16 +292,33 @@ MOVE_LEFT:
 
 	ble		$t4, $zero, LEFT_UPDATE_DIR		# if xpos is less than 0, don't update the xposition
 
+	addi 	$t7, $zero, -UNIT_WIDTH					# store distance to unit on left
+	add 	$t5, $t7, $t1							# store top unit on left of character
 
-	addi 	$t4, $t4, -1		# Update xpos variable (subtract 1)
+	addi 	$t6, $zero, CHARACTER_HEIGHT			# store character height
+	add 	$t7, $zero, $zero						# loop iterator
+
+
+LEFT_COLLISION:
+	bge 	$t7, $t6, UPDATE_XPOS_LEFT				# check each pixel on the left of the character
+	lw 		$t8, 0($t5)								# load colour at current unit
+	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
+	addi 	$t7, $t7, 1								# inecrease iterator
+	j 		LEFT_COLLISION							# jump to beginning of loop
+
+UPDATE_XPOS_LEFT:
+	addi 	$t4, $t4, -2		# Update xpos variable (subtract 2)
 	sw 		$t4, 0($t3)			# Update xpos in data
 
-	addi 	$t1, $t1, -4		# Move character to the left by one unit (4 pixels)
+	addi 	$t1, $t1, -8		# Move character to the left by 2 units (8 pixels)
 
 	sw 		$t1, 0($t2)			# Update char address
 
-	la 		$a0, addressChar	# Get character address
-	lw 		$a0, 0($a0)
+	#la 		$a0, addressChar	# Get character address
+	#lw 		$a0, 0($a0)
+
+
 
 LEFT_UPDATE_DIR:
 
