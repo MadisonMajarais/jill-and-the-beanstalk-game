@@ -64,6 +64,9 @@ charVerDir: .word 0
 # 0 - otherwise
 # 1 - jumping up
 jumpTimer: .word 0
+points: .word 0
+lives: .word 3
+
 
 .eqv BASE_ADDRESS 0x10008000
 
@@ -76,7 +79,12 @@ jumpTimer: .word 0
 .eqv UNIT_WIDTH 4
 .eqv CHAR_START_ADDRESS 0x1000A800
 
+.eqv BOTTOM_RIGHT_UNIT 0x1000FFFD
+
 .eqv JUMP_TIME_LENGTH 15
+
+.eqv HEART_ADDRESS 0x1000BB00
+.eqv SPACE_BETWEEN_HEART 0x00000028
 
 .eqv BROWN 0x735032
 .eqv LIGHT_BROWN 0xde9557
@@ -91,6 +99,7 @@ jumpTimer: .word 0
 .eqv DARK_BLUE 0x4e4d59
 .eqv INDIGO 0x1740f5
 .eqv BABY_BLUE 0xbdc7f3
+.eqv MAGENTA 0Xd535c6
 
 .eqv P1_XPOS  0x000000010
 .eqv P1_YPOS 0x0000034
@@ -110,6 +119,12 @@ jumpTimer: .word 0
 .eqv SKY2_WIDTH  0x00000001
 .eqv SKY2_HEIGHT 0x00000040
 
+.eqv CLOUD_XPOS  0x000000000
+.eqv CLOUD_YPOS 0x0000003A
+.eqv CLOUD_COLOR  0xE9F4FB
+.eqv CLOUD_WIDTH  0x00000100
+.eqv CLOUD_HEIGHT 0x00000006
+
 .eqv level1NumPlatform 4
 
 #s0 is horizontal direction 0 means left 1 means right
@@ -120,6 +135,11 @@ jumpTimer: .word 0
 
 ############# Start Game #########################
 START_GAME:
+
+	la 		$t3, lives			# get address of lives
+	addi 	$t4, $zero, 3		# set lives to 3
+	sw		$t4, 0($t3)			# update lives variable
+
 	la 		$t3, xposChar		# load char xposition address
 	lw 		$t4, 0($t3)			# loads xposition
 
@@ -361,6 +381,7 @@ RIGHT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	# beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
 	j 		RIGHT_COLLISION							# jump to beginning of loop
@@ -422,6 +443,7 @@ GRAVITY_LOOP:
 	bge 	$t2, $t3, APPLY_GRAVITY					# if done checking units below
 	lw 		$t5, 0($t2)								# load colour at current unit
 	beq 	$t5, DARK_GREEN, ON_PLATFORM			# Check if pixel is a platform
+	beq 	$t5, CLOUD_COLOR, LEVEL_RESET					# Check if pixel is a platform
 	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
 	j 		GRAVITY_LOOP								# jump to beginning of loop
 	#lw $t3, 0($t2)			# get colour below bottom left of character
@@ -456,6 +478,113 @@ MOVE_DOWN_COMPLETE:
 	addi 	$sp, $sp, 4		# update stack pointer
 	jr 		$ra
 
+################ Level reset ################################
+LEVEL_RESET:
+
+	addi $sp, $sp, -4		# move stack pointer
+	sw $ra, 0($sp)			# store $ra onto stack
+	
+	la $t8, lives			# load lives
+	lw $t9, 0($t8)			
+
+	addi $t9, $t9, -1		# subtract 1 life
+	sw $t9, 0($t8)			# update num lives variable
+
+
+	beq $t9, $zero, GAME_OVER	# If 0 lives remain, then game over
+
+	jal		DRAW_CLOUD			# draw cloud
+
+	la 		$t3, xposChar		# load char xposition address
+	lw 		$t4, 0($t3)			# loads xposition
+
+	addi 	$t4, $zero, 0		# set xposition variable to 0
+	sw 		$t4, 0($t3)			# Update xpos variable in memory
+
+	la 		$t3, addressChar	# load char address
+	lw 		$t5, 0($t3)			# load character address
+
+	move 	$a0, $t5			# move char address to argument
+	jal 	ERASE_CHAR			# Erase character
+
+	addi 	$t4, $zero, CHAR_START_ADDRESS	# # store start address for character
+	sw 		$t4, 0($t3)			# stores character address
+
+	jal 	DRAW_LIVES			# draw lives
+
+	lw  	$ra, 0($sp)			# get prev stored $ra
+	addi 	$sp, $sp, 4			# update stack pointer
+
+	jr $ra
+
+ERASE_LIFE:
+	#addi 
+	jr $ra
+
+################# Draw Lives ################################
+DRAW_LIVES:
+
+	addi $sp, $sp, -4		# move stack pointer
+	sw $ra, 0($sp)			# store $ra on stack
+
+	la $t8, lives			# load lives
+	lw $t9, 0($t8)	
+
+	addi $t7, $zero, HEART_ADDRESS	# store heart address
+
+LIVES_LOOP:
+	ble $t9, $zero, END_LIVES_LOOP	# Loop for each heart
+
+	add $a0, $zero, $t7				# store heart address in $a0
+	jal DRAW_HEART					# draw heart at specified location
+
+	addi $t9, $t9, -1				# update iterator
+	addi $t7, $t7, SPACE_BETWEEN_HEART	# update heart address for next heart
+	j LIVES_LOOP
+	
+
+END_LIVES_LOOP:
+
+	lw $ra, 0($sp)			# pop $ra off of stack
+	addi $sp, $sp, 4		# move stack pointer
+
+	jr $ra					# return to caller function
+
+
+################ Add point #################################
+ADD_POINTS:
+
+	la $t8, points			# load address of points
+	lw $t9, 0($t8)			# load number of points
+
+	addi $t9, $t9, 1				# add 1 point
+
+	addi $t7, $zero, 1		# $t7 = 1
+	
+	#beq $t9, $t7, LEVEL_2	# if 1 point move to level 2
+
+	addi $t7, $t7, 1		# $t7 = 2
+
+	#beq $t9, $t7, LEVEL_3   # if 2 points move to level 3
+
+	addi $t7, $t7, 1		# $t7 = 3
+
+	#beq $t9, $t7, GAME_WON   # if 3 points, then won game
+
+############### Game over #########################
+GAME_OVER:
+
+	jal DRAW_BACKGROUND
+	jal QUIT
+
+################ Level 2 ###########################
+
+
+################ Level 3 ###########################
+
+################ Game Won #############################
+
+
 ################ Repaint ##################################
 	
 #####################  Painting Functions  ################################
@@ -472,9 +601,10 @@ DRAW_BACKGROUND:
 	li $t3, BLUE					# $t3 stores the blue colour code
 
 	addi $t4, $zero, BASE_ADDRESS
-	addi $t5, $t4, 16384 			# Store bottom right unit in t5
+	addi $t5, $t4, 16384 			# Store bottom right unit in s5
+	#addi $t5, $zero, BOTTOM_RIGHT_UNIT  	# Store bottom right unit in t5
 	
-	la $t6, backgroundColours 		# $t0 stores the base address for display
+	addi $t4, $zero, BASE_ADDRESS 		# $t4 stores the base address for display
 	
 	
 IF:	
@@ -486,9 +616,41 @@ END:
 	
 	jal DRAW_SKY
 
+	jal DRAW_CLOUD
+
 	lw $t3, 0($sp)		# pop prev $ra from stack
 	addi $sp, $sp, 4	# update stacker pointer
 	jr $t3				# jump to caller function
+
+
+############## Draw cloud ############################
+
+DRAW_CLOUD:
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+    # Draw white rectangle
+	
+	li $t3, CLOUD_XPOS # Load platform 1 xpos
+	sw $t3, -4($sp) # push xpos onto stack
+	li $t3, CLOUD_YPOS # Load platform 1 ypos
+	sw $t3, -8($sp) # push xpos onto stack
+	li $t3, CLOUD_WIDTH # Load platform 1 ypos
+	sw $t3, -12($sp) # push xpos onto stack
+	li $t3, CLOUD_HEIGHT # Load platform 1 ypos
+	sw $t3, -16($sp) # push xpos onto stack
+	li $t3, CLOUD_COLOR # Load platform 1 ypos
+	sw $t3, -20($sp) # push xpos onto stack
+	
+	addi $sp, $sp, -20 # move pointer to make space
+	
+	jal DRAW_REC
+	
+
+	lw $t3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $t3				# jump to caller function
+
 
 ############## Draw sky #############################
 
@@ -557,7 +719,9 @@ DRAW_L1:
 	addi $sp, $sp, -4 		# move pointer to make space
 	sw $ra, 0($sp) 			# save $ra to the stack
 
-	
+	#addi $a0, $zero, HEART_ADDRESS
+
+	#jal DRAW_LIVES
 	
 DRAW_PFORM_LOOP:
 
@@ -577,6 +741,14 @@ DRAW_PFORM_LOOP:
 	add $t1, $t1, $t8	# t3 = addr(ypos) + i
 	add $t2, $t2, $t8	# t3 = addr(width) + i
 	
+	#move $a0, $t0	
+	#li $v0, 1
+	#syscall 
+
+	# Prints  prompt text
+	#li 		$v0, 4		      
+	#la 		$a0, promptA
+	#syscall  
 	
 	# push arguments onto stack
 	lw $t3, 0($t0)		#$t3 = xpos[i]
@@ -599,6 +771,9 @@ DRAW_PFORM_LOOP:
 	
 	
 END_DRAW_L1:
+
+	jal DRAW_LIVES
+
 	lw $t3, 0($sp)		# pop prev $ra from stack
 	addi $sp, $sp, 4	# update stacker pointer
 	jr $t3				# jump to prev function
@@ -619,7 +794,7 @@ DRAW_REC:
 	# Get address of position
 	addi $t5, $zero, 256 	# Store 256 in temp variable
 	mult $t5, $t3			# Multiply ypos by 256
-	mflo $t3 				# store ypoz * 256
+	mflo $t3 				# store ypos * 256
 	
 	addi $t5, $zero, 4 		# Store 4 in temp variable
 	mult $t5, $t4			# Multiply xpos by 4
@@ -887,6 +1062,29 @@ DRAW_WATER:
 	sw $t0, 264($a0)			# Colour specified pixels baby
 	sw $t0, 520($a0)
 	
+	jr $ra
+
+DRAW_HEART:
+	add $t0, $zero, MAGENTA   	# Store Magenta
+	sw $t0, 0($a0)				# Colour specified pixels magenta
+	sw $t0, 4($a0)
+	sw $t0, 12($a0)
+	sw $t0, 16($a0)
+	sw $t0, 256($a0)
+	sw $t0, 260($a0)
+	sw $t0, 264($a0)
+	sw $t0, 268($a0)
+	sw $t0, 272($a0)
+	sw $t0, 512($a0)
+	sw $t0, 516($a0)
+	sw $t0, 520($a0)
+	sw $t0, 524($a0)
+	sw $t0, 528($a0)
+	sw $t0, 772($a0)
+	sw $t0, 776($a0)
+	sw $t0, 780($a0)
+	sw $t0, 1032($a0)
+
 	jr $ra
 	
 
