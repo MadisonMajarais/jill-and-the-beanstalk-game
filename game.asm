@@ -82,9 +82,9 @@ gameOverScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 
 
-pL1xpos: .word 0x0000000, 0x0000010, 0x000002B, 0x00000E, 0x000001B
-pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001E, 0x0000011
-pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000015
+pL1xpos: .word 0x0000000, 0x0000010, 0x0000026, 0x000010, 0x0000000
+pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001A, 0x0000011
+pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000012
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
@@ -356,6 +356,10 @@ LEFT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS_LEFT				# check each pixel on the left of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	addi	$t5, $t5, -UNIT_WIDTH					# check if two units left is a platform
+	lw 		$t8, 0($t5)								# load colour at current unit
+	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	addi	$t5, $t5, UNIT_WIDTH					# reset $t5 to one unit left
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
 	j 		LEFT_COLLISION							# jump to beginning of loop
@@ -402,6 +406,7 @@ MOVE_RIGHT:
 
 	addi 	$t5, $zero, WIDTH					# store width of screen
 	addi 	$t5, $t5, -CHARACTER_WIDTH			# caluclate right most xpos where the character remains on screen
+	addi 	$t5, $t5, -1						# subtract 1 to accomodate for moving right 2 units at a time
 	bge		$t4, $t5, RIGHT_UPDATE_DIR			# if xpos is greater than 64 (the width), don't update the xposition
 
 	addi 	$t7, $zero, CHARACTER_WIDTH_PIXELS		# store characters width in pixels
@@ -414,6 +419,10 @@ RIGHT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	addi	$t5, $t5, UNIT_WIDTH					# check if two units right is a platform
+	lw 		$t8, 0($t5)								# load colour at current unit
+	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	addi	$t5, $t5, -UNIT_WIDTH					# reset $t5 to one unit right
 	# beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
