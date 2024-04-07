@@ -85,12 +85,22 @@ gameOverScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 pL1xpos: .word 0x0000000, 0x0000010, 0x0000026, 0x000010, 0x0000000
 pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001A, 0x0000011
 pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000012
+
+pL2xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002B, 0x0000038, 0x0000020, 0x0000018
+pL2ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
+pL2width: .word 0x0000010, 0x0000008, 0x0000008, 0x000009, 0x000000A, 0x000000E, 0x0000008, 0x0000010, 0x0000010
+
+pL3xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x0000030, 0x0000038, 0x0000020, 0x0000018
+pL3ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
+pL3width: .word 0x0000010, 0x0000008, 0x0000008, 0x000009, 0x000000A, 0x000000A, 0x0000008, 0x0000010, 0x0000010
+
+
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
 addressChar: .word 0x1000A800
 addressBee: .word 0x10008000
-addressWater: .word 0x10008528
+#addressWater: .word 0x10008528
 charJumpTimer: .word 10
 charHorDir:	.word 1
 # 0 - left
@@ -120,6 +130,7 @@ lives: .word 3
 
 .eqv HEART_ADDRESS 0x1000BB00
 .eqv SPACE_BETWEEN_HEART 0x00000028
+.eqv DEFAULT_NUM_LIVES 3
 
 .eqv GAME_OVER_DIMENSION 0x00000020
 .eqv GAME_OVER_LOCATION 0x10008A40
@@ -163,7 +174,13 @@ lives: .word 3
 .eqv CLOUD_WIDTH  0x00000100
 .eqv CLOUD_HEIGHT 0x00000006
 
-.eqv level1NumPlatform 4
+.eqv level1NumPlatform 5
+.eqv level2NumPlatform 9
+.eqv level3NumPlatform 8
+
+.eqv addressWaterLevel1 0x10008528
+.eqv addressWaterLevel2 0x10008528
+.eqv addressWaterLevel3 0x10008528
 
 #s0 is horizontal direction 0 means left 1 means right
 # s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
@@ -185,6 +202,10 @@ START_GAME:
 	la 		$t3, addressChar	# load char address
 	addi 	$t4, $zero, CHAR_START_ADDRESS	# # store start address for character
 	sw 		$t4, 0($t3)			# stores character address
+
+	la 		$t8, lives			# load lives
+	addi 	$t9, $zero, DEFAULT_NUM_LIVES	# set default num lives
+	sw 	$t9, 0($t8)	
 	
 	jal 	DRAW_L1				# Draw Level 1
 	
@@ -193,10 +214,10 @@ START_GAME:
 	
 	jal 	DRAW_BEE
 	
-	la 		$a0, addressWater
-	lw 		$a0, 0($a0)
+	#la 		$a0, addressWater
+	#lw 		$a0, 0($a0)
 	
-	jal 	DRAW_WATER
+	#jal 	DRAW_WATER
 
 	la 		$a0, BASE_ADDRESS
 
@@ -356,6 +377,7 @@ LEFT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS_LEFT				# check each pixel on the left of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, -UNIT_WIDTH					# check if two units left is a platform
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
@@ -419,11 +441,11 @@ RIGHT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, UNIT_WIDTH					# check if two units right is a platform
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
 	addi	$t5, $t5, -UNIT_WIDTH					# reset $t5 to one unit right
-	# beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
 	j 		RIGHT_COLLISION							# jump to beginning of loop
@@ -523,14 +545,18 @@ MOVE_DOWN_COMPLETE:
 ################ Level reset ################################
 LEVEL_RESET:
 
-	addi $sp, $sp, -4		# move stack pointer
-	sw $ra, 0($sp)			# store $ra onto stack
-	
 	la $t8, lives			# load lives
 	lw $t9, 0($t8)			
 
 	addi $t9, $t9, -1		# subtract 1 life
 	sw $t9, 0($t8)			# update num lives variable
+
+RESTART_LEVEL:
+	la $t8, lives			# load lives
+	lw $t9, 0($t8)	
+
+	addi $sp, $sp, -4		# move stack pointer
+	sw $ra, 0($sp)			# store $ra onto stack
 
 
 	beq $t9, $zero, GAME_OVER	# If 0 lives remain, then game over
@@ -596,6 +622,9 @@ END_LIVES_LOOP:
 ################ Add point #################################
 ADD_POINTS:
 
+	addi $sp, $sp, -4		#update pointer
+	sw $ra, 0($sp)			# push $ra to stack
+
 	la $t8, points			# load address of points
 	lw $t9, 0($t8)			# load number of points
 
@@ -603,15 +632,30 @@ ADD_POINTS:
 
 	addi $t7, $zero, 1		# $t7 = 1
 	
-	#beq $t9, $t7, LEVEL_2	# if 1 point move to level 2
-
+	beq $t9, $t7, GO_TO_LEVEL_2	# if 1 point move to level 2
+	#j END_ADD_POINTS
 	addi $t7, $t7, 1		# $t7 = 2
 
-	#beq $t9, $t7, LEVEL_3   # if 2 points move to level 3
+	beq $t9, $t7, GO_TO_LEVEL_3   # if 2 points move to level 3
 
 	addi $t7, $t7, 1		# $t7 = 3
+GO_TO_LEVEL_2:
+	jal DRAW_L2
+	jal RESTART_LEVEL
+	j END_ADD_POINTS
+
+GO_TO_LEVEL_3:
+	jal DRAW_L3
+	jal RESTART_LEVEL
+	j END_ADD_POINTS
+
+END_ADD_POINTS:
 
 	#beq $t9, $t7, GAME_WON   # if 3 points, then won game
+	lw $ra, 0($sp)			# pop $ra
+	addi $sp, $sp, 4
+
+	jr $ra
 
 ############### Game over #########################
 GAME_OVER:
@@ -755,7 +799,7 @@ DRAW_L1:
 	add $t8, $zero, $zero 		# define t8 to be platform index
 	li $t9, level1NumPlatform	# store num of platforms in level 1
 	
-	add $t7, $t7, 4			# store 4 in t7
+	add $t7, $zero, 4			# store 4 in t7
 	mult $t9, $t7			# mult num of platforms by 4
 	mflo $t9				# store num platforms * 4 in $t9
 	
@@ -814,6 +858,185 @@ DRAW_PFORM_LOOP:
 	
 	
 END_DRAW_L1:
+
+	addi 	$a0, $zero, addressWaterLevel1
+	
+	jal 	DRAW_WATER
+
+	jal DRAW_LIVES
+
+	lw $t3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $t3				# jump to prev function
+	
+
+############# Draw Level 2 #############################
+
+
+DRAW_L2:
+
+	# Draw background
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	jal DRAW_BACKGROUND  	# Draw background
+
+
+	# draw level 1 platforms
+	add $t8, $zero, $zero 		# define t8 to be platform index
+	li $t9, level2NumPlatform	# store num of platforms in level 1
+	
+	add $t7, $zero, 4			# store 4 in t7
+	mult $t9, $t7			# mult num of platforms by 4
+	mflo $t9				# store num platforms * 4 in $t9
+	
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	#addi $a0, $zero, HEART_ADDRESS
+
+	#jal DRAW_LIVES
+	
+DRAW_PFORM_LOOP2:
+
+	 
+	# Draw platforms for the level
+	bge $t8, $t9, END_DRAW_L2  	# continue loop until index = num of platforms
+	
+	# Get platform at current index 
+	
+	la $t0, pL2xpos
+	la $t1, pL2ypos
+	la $t2, pL2width
+	
+	# Draw platform rectangle
+	
+	add $t0, $t0, $t8	# t3 = addr(xpos) + i
+	add $t1, $t1, $t8	# t3 = addr(ypos) + i
+	add $t2, $t2, $t8	# t3 = addr(width) + i
+	
+	#move $a0, $t0	
+	#li $v0, 1
+	#syscall 
+
+	# Prints  prompt text
+	#li 		$v0, 4		      
+	#la 		$a0, promptA
+	#syscall  
+	
+	# push arguments onto stack
+	lw $t3, 0($t0)		#$t3 = xpos[i]
+	sw $t3, -4($sp) 	# push xpos onto stack
+	lw $t3, 0($t1)		#$t3 = ypos[i]
+	sw $t3, -8($sp) 	# push ypos onto stack
+	lw $t3, 0($t2)		#$t3 = width[i]
+	sw $t3, -12($sp) 	# push width onto stack
+	addi $t3, $zero, 2 	# set height of platform to 2
+	sw $t3, -16($sp) 	# push height onto stack
+	li $t3, DARK_GREEN 	# make platforms dark green
+	sw $t3, -20($sp) 	# push colour onto stack
+	
+	addi $sp, $sp, -20 	# move pointer to make space
+	
+	jal DRAW_REC
+	
+	addi $t8, $t8, 4	# update index
+	j DRAW_PFORM_LOOP2	# jump to beginning of loop
+	
+	
+END_DRAW_L2:
+
+	addi		$a0, $zero, addressWaterLevel2
+	
+	jal 	DRAW_WATER
+
+	jal DRAW_LIVES
+
+	lw $t3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $t3				# jump to prev function
+
+############# Draw Level 3 #############################
+
+
+DRAW_L3:
+
+	# Draw background
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	jal DRAW_BACKGROUND  	# Draw background
+
+
+	# draw level 3 platforms
+	add $t8, $zero, $zero 		# define t8 to be platform index
+	li $t9, level3NumPlatform	# store num of platforms in level 3
+	
+	add $t7, $zero, 4			# store 4 in t7
+	mult $t9, $t7			# mult num of platforms by 4
+	mflo $t9				# store num platforms * 4 in $t9
+	
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	#addi $a0, $zero, HEART_ADDRESS
+
+	#jal DRAW_LIVES
+	
+DRAW_PFORM_LOOP3:
+
+	 
+	# Draw platforms for the level
+	bge $t8, $t9, END_DRAW_L3  	# continue loop until index = num of platforms
+	
+	# Get platform at current index 
+	
+	la $t0, pL3xpos
+	la $t1, pL3ypos
+	la $t2, pL3width
+	
+	# Draw platform rectangle
+	
+	add $t0, $t0, $t8	# t3 = addr(xpos) + i
+	add $t1, $t1, $t8	# t3 = addr(ypos) + i
+	add $t2, $t2, $t8	# t3 = addr(width) + i
+	
+	#move $a0, $t0	
+	#li $v0, 1
+	#syscall 
+
+	# Prints  prompt text
+	#li 		$v0, 4		      
+	#la 		$a0, promptA
+	#syscall  
+	
+	# push arguments onto stack
+	lw $t3, 0($t0)		#$t3 = xpos[i]
+	sw $t3, -4($sp) 	# push xpos onto stack
+	lw $t3, 0($t1)		#$t3 = ypos[i]
+	sw $t3, -8($sp) 	# push ypos onto stack
+	lw $t3, 0($t2)		#$t3 = width[i]
+	sw $t3, -12($sp) 	# push width onto stack
+	addi $t3, $zero, 2 	# set height of platform to 2
+	sw $t3, -16($sp) 	# push height onto stack
+	li $t3, DARK_GREEN 	# make platforms dark green
+	sw $t3, -20($sp) 	# push colour onto stack
+	
+	addi $sp, $sp, -20 	# move pointer to make space
+	
+	jal DRAW_REC
+	
+	addi $t8, $t8, 4	# update index
+	j DRAW_PFORM_LOOP3	# jump to beginning of loop
+	
+	
+END_DRAW_L3:
+
+	addi		$a0, $zero, addressWaterLevel3
+	
+	jal 	DRAW_WATER
 
 	jal DRAW_LIVES
 
