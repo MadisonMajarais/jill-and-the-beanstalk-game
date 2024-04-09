@@ -115,16 +115,16 @@ winScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xf
 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 
 pL1xpos: .word 0x0000000, 0x0000010, 0x0000026, 0x000010, 0x0000000
-pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001A, 0x0000011
+pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001B, 0x0000011
 pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000012
 
 pL2xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002B, 0x0000038, 0x0000020, 0x0000018
 pL2ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
-pL2width: .word 0x0000010, 0x0000008, 0x0000008, 0x000009, 0x000000A, 0x000000E, 0x0000008, 0x0000010, 0x0000010
+pL2width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x000000E, 0x0000008, 0x0000010, 0x0000010
 
 pL3xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x0000030, 0x0000038, 0x0000020, 0x0000018
 pL3ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
-pL3width: .word 0x0000010, 0x0000008, 0x0000008, 0x000009, 0x000000A, 0x000000A, 0x0000008, 0x0000010, 0x0000010
+pL3width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x000000A, 0x0000008, 0x0000010, 0x0000010
 
 
 backgroundColours: .space 65536
@@ -145,11 +145,13 @@ points: .word 0
 lives: .word 3
 
 bee1XPos: .word 0
-bee2XPos: .word 2
+bee2XPos: .word 40
 
 bee1Address: .word 0x10008000
-bee2Address: .word 0x1000A800
+bee2Address: .word 0x10009EA0
+charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044, 2304, 2320, 20, 1072, 1812
 
+.eqv collisionArrayLength 14
 .eqv BASE_ADDRESS 0x10008000
 
 .eqv ZERO 0
@@ -217,11 +219,11 @@ bee2Address: .word 0x1000A800
 .eqv level2NumPlatform 9
 .eqv level3NumPlatform 8
 
-.eqv addressWaterLevel1 0x10008528
-.eqv addressWaterLevel2 0x10008528
-.eqv addressWaterLevel3 0x10008528
+.eqv addressWaterLevel1 0x10008C04
+.eqv addressWaterLevel2 0x10008C04
+.eqv addressWaterLevel3 0x10008C04
 
-.eqv beeWidth 5
+.eqv beeWidth 6
 
 #s0 is horizontal direction 0 means left 1 means right
 # s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
@@ -330,6 +332,8 @@ AFTER_CHAR_DRAW:
 	lw 		$a0, 0($a0)
 	
 	jal 	DRAW_BEE						# draw bee
+
+	jal 	CHECK_BEE_COLLISION					# check for bee collision
 
 	j MAIN
 ############# Keyboard press ###############################
@@ -453,6 +457,7 @@ LEFT_COLLISION:
 	addi	$t5, $t5, -UNIT_WIDTH					# check if two units left is a platform
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, UNIT_WIDTH					# reset $t5 to one unit left
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
@@ -614,6 +619,42 @@ MOVE_DOWN_COMPLETE:
 	addi 	$sp, $sp, 4		# update stack pointer
 	jr 		$ra
 
+################ Check bee collision ############################
+
+CHECK_BEE_COLLISION:
+
+	addi $sp, $sp, -4						# move stack pointer
+	sw $ra, 0($sp)							# push stack pointer on to stack
+
+	addi $t0, $zero, collisionArrayLength	#get array length
+	
+	la 	$t1, charCollisionAddresses			# get address for collsiion check array
+	lw $t4, 0($t1)							# get character values
+
+	addi $t2, $zero, 0						# loop iterator
+
+	la $t3, addressChar						# load character address
+	lw $t3, 0($t3)							# store character address in $t3
+
+COLLISION_LOOP:
+	bge $t2, $t0, END_COLLISION_LOOP
+	lw $t4, 0($t1)							# get character collision check value
+	add $t5, $t3, $t4						# get address to check in game
+	lw $t5, 0($t5)							# load colour
+	beq	$t5, YELLOW, COLLISION_DETECTED		# if unit is yellow, then collision occurred
+	addi $t1, $t1, 4						# move to next val in array
+	addi $t2, $t2, 1						# update iterator
+	j COLLISION_LOOP
+
+COLLISION_DETECTED:
+	jal LEVEL_RESET							# reset level and lose 1 life
+
+END_COLLISION_LOOP:
+
+	lw $ra, 0($sp)							# pop $ra
+	addi $sp, $sp, 4						# update stack pointer
+
+	jr $ra
 
 ################ Bee movement ################################
 MOVE_BEE1:
@@ -860,7 +901,7 @@ DRAW_WON:
 
 	jal DRAW_BACKGROUND
 	jal DRAW_WIN_SCREEN
-	jal QUIT
+	#jal QUIT
 
 ################ Repaint ##################################
 	
