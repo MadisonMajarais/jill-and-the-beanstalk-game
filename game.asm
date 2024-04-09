@@ -225,6 +225,10 @@ charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044,
 .eqv addressWaterLevel3 0x10008C04
 
 .eqv beeWidth 6
+.eqv DEFAULT_BEE1_ADDRESS 0x10008000
+.eqv DEFAULT_BEE2_ADDRESS 0x100097E0
+.eqv DEFAULT_BEE1_XPOS 0
+.eqv DEFAULT_BEE2_XPOS 56
 
 ########## Global variables ##################
 # s0 is horizontal direction 0 means left 1 means right
@@ -257,6 +261,22 @@ START_GAME:
 	la 		$t8, points						# load points
 	addi 	$t9, $zero, DEFAULT_NUM_POINTS	# set default num lives
 	sw 	$t9, 0($t8)	
+
+	la		$t8, bee1XPos						# load bee 1 xpos address
+	addi	$t9, $zero, DEFAULT_BEE1_XPOS 	#  store default bee 1 xpos
+	sw		$t9, 0($t8)
+
+	la		$t8, bee2XPos						# load bee 2 xpos address
+	addi	$t9, $zero, DEFAULT_BEE2_XPOS 		#  store default bee 2 xpos
+	sw		$t9, 0($t8)
+
+	la		$t8, bee1Address					# load bee 1 address
+	addi	$t9, $zero, DEFAULT_BEE1_ADDRESS	#  store default bee 1 address
+	sw		$t9, 0($t8)
+
+	la		$t8, bee2Address					# load bee 2 address
+	addi	$t9, $zero, DEFAULT_BEE2_ADDRESS	#  store default bee 2 address
+	sw		$t9, 0($t8)
 	
 	jal 	DRAW_L1				# Draw Level 1
 
@@ -587,6 +607,7 @@ GRAVITY_LOOP:
 	lw 		$t5, 0($t2)								# load colour at current unit
 	beq 	$t5, DARK_GREEN, ON_PLATFORM			# Check if pixel is a platform
 	beq 	$t5, CLOUD_COLOR, LEVEL_RESET					# Check if pixel is a platform
+	beq 	$t5, INDIGO, ADD_POINTS					# if pixel is water, add a point 
 	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
 	j 		GRAVITY_LOOP								# jump to beginning of loop
 	#lw $t3, 0($t2)			# get colour below bottom left of character
@@ -848,7 +869,7 @@ ADD_POINTS:
 	la $t8, points			# load address of points
 	lw $t9, 0($t8)			# load number of points
 
-	addi $t9, $t9, 1				# add 1 point
+	addi $t9, $t9, 1		# add 1 point
 
 	sw $t9, 0($t8)			# store num points
 
@@ -1668,11 +1689,6 @@ WIN_NEXT_ROW:
 WIN_NEXT_COL:
 
 	bge $t7, $t5, WIN_NEXT_COL_DONE
-
-		# Prints  prompt text
-	li 		$v0, 4		      
-	la 		$a0, promptB
-	syscall 
 
 	lw $t4, 0($t8)			# get color of location
 	sw $t4, 0($t3)			# update unit of game
