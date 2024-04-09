@@ -149,7 +149,7 @@ bee2XPos: .word 56
 
 bee1Address: .word 0x10008000
 bee2Address: .word 0x100097E0
-charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044, 2304, 2320, 20, 1072, 1812
+charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044, 2304, 2320, 20, 1044, 1812
 
 
 .eqv collisionArrayLength 14
@@ -232,7 +232,6 @@ charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044,
 # s2 is bee1 direction 0 is left, 1 is right
 # s3 is bee2 direction 0 is left, 1 is right
 # s4 is bee timer
-# s5 gamePlaying boolean
 
 .text
 
@@ -267,8 +266,6 @@ START_GAME:
 
 	addi	$s4, $zero, 0		# set bee timer to false
 
-	addi	$s5, $zero, 1		# set game playing to true
-
 	la 		$a0, BASE_ADDRESS
 
 
@@ -287,8 +284,6 @@ MAIN:
 	beq 	$t8, 1, keypress_happened
 
 AFTER_KEYPRESS:
-
-	beq		$s5, $zero, MAIN				# if gamePlaying is false, then jump back to MAIN
 
 	ble 	$s1, $zero, ACTIVATE_GRAVITY	# If not jumping then activate gravity
 	jal 	MOVE_UP							# If jumping, then move up
@@ -366,10 +361,15 @@ QUIT:
 ################## Player Movement ######################################
 ###### Start jump ##############
 START_JUMP:
+	
+	addi	$t2, $zero, 1					# store 1 in $t2
 
-	bne 	$s1, $zero, END_OF_START_JUMP	# If already jumping or falling, don't jump
-	addi 	$s1, $zero, 1					# set jump variable to true
+	beq		$s1, $t2, START_NEW_JUMP		# start new jump if $s2 = 1  
 
+	bne 	$s1, $zero, END_OF_START_JUMP	# If already jumped twice or falling, don't jump
+
+START_NEW_JUMP:
+	addi 	$s1, $s1, 1						# add a jump to jumpVariable
 	la 		$t0, jumpTimer					# get address of jump timer
 
 	addi 	$t1, $zero, JUMP_TIME_LENGTH	# get time that jump should last
@@ -429,11 +429,6 @@ END_OF_JUMP_FUNC:
 ############# Move left ############################
 
 MOVE_LEFT:
-
-	# Prints  prompt text
-	li 		$v0, 4		      
-	la 		$a0, promptA
-	syscall  
 
 	la 		$t2, addressChar	# load address for var
 	lw 		$t1, 0($t2)			# load character address
@@ -497,6 +492,7 @@ LEFT_UPDATE_DIR:
 
 MOVE_RIGHT:
 
+
 	la 		$t2, addressChar					# load address for var
 	lw 		$t1, 0($t2)							# load character address
 
@@ -557,6 +553,7 @@ RIGHT_UPDATE_DIR:
 
 ############## Gravity ################################
 GRAVITY:
+
 
 	addi 	$sp, $sp, -4	# store $ra on stack
 	sw 		$ra, 0($sp)
@@ -891,10 +888,9 @@ END_ADD_POINTS:
 
 ############### Game over #########################
 GAME_OVER:
-	addi $s5, $zero, 0		# set game playing to false
 	jal DRAW_BACKGROUND
 	jal DRAW_GAME_OVER
-	jal MAIN
+	jal QUIT
 
 ################ Level 2 ###########################
 
@@ -904,10 +900,9 @@ GAME_OVER:
 ################ Game Won #############################
 DRAW_WON:
 
-	addi $s5, $zero, 0		# set game playing to false
 	jal DRAW_BACKGROUND
 	jal DRAW_WIN_SCREEN
-	jal MAIN
+	jal QUIT
 
 ################ Repaint ##################################
 	
@@ -925,7 +920,7 @@ DRAW_BACKGROUND:
 	li $t3, BLUE					# $t3 stores the blue colour code
 
 	addi $t4, $zero, BASE_ADDRESS
-	addi $t5, $t4, 16384 			# Store bottom right unit in s5
+	addi $t5, $t4, 16384 			# Store bottom right unit in t5
 	#addi $t5, $zero, BOTTOM_RIGHT_UNIT  	# Store bottom right unit in t5
 	
 	addi $t4, $zero, BASE_ADDRESS 		# $t4 stores the base address for display
@@ -1633,11 +1628,6 @@ GAME_OVER_NEXT_ROW:
 GAME_OVER_NEXT_COL:
 
 	bge $t7, $t5, GAME_OVER_NEXT_COL_DONE
-
-		# Prints  prompt text
-	li 		$v0, 4		      
-	la 		$a0, promptB
-	syscall 
 
 	lw $t4, 0($t8)			# get color of location
 	sw $t4, 0($t3)			# update unit of game
