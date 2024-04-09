@@ -144,6 +144,11 @@ jumpTimer: .word 0
 points: .word 0
 lives: .word 3
 
+bee1XPos: .word 0
+bee2XPos: .word 2
+
+bee1Address: .word 0x10008000
+bee2Address: .word 0x1000A800
 
 .eqv BASE_ADDRESS 0x10008000
 
@@ -216,9 +221,12 @@ lives: .word 3
 .eqv addressWaterLevel2 0x10008528
 .eqv addressWaterLevel3 0x10008528
 
+.eqv beeWidth 5
+
 #s0 is horizontal direction 0 means left 1 means right
 # s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
-
+# s2 is bee1 direction 0 is left, 1 is right
+# s3 is bee2 direction 0 is left, 1 is right
 
 .text
 
@@ -246,11 +254,14 @@ START_GAME:
 	sw 	$t9, 0($t8)	
 	
 	jal 	DRAW_L1				# Draw Level 1
+
+	addi	$s2, $zero, 1		# set bee 1 to move right		
 	
-	la 		$a0, addressBee
-	lw 		$a0, 0($a0)
+	addi	$s3, $zero, 1		# set bee 2 to move right
+	#la 		$a0, addressBee
+	#lw 		$a0, 0($a0)
 	
-	jal 	DRAW_BEE
+	#jal 	DRAW_BEE
 	
 	#la 		$a0, addressWater
 	#lw 		$a0, 0($a0)
@@ -296,6 +307,29 @@ LEFT:
 	jal 	DRAW_CHAR_LEFT					# Draw Character
 
 AFTER_CHAR_DRAW:
+	la 		$a0, bee1Address				# get bee1 address
+	lw 		$a0, 0($a0)
+
+	jal		ERASE_BEE						# erase bee
+
+	jal	 	MOVE_BEE1						# update bee position
+
+	la 		$a0, bee1Address				# get bee1 address
+	lw 		$a0, 0($a0)
+	
+	jal 	DRAW_BEE						# draw bee
+
+	la 		$a0, bee2Address				# get bee2 address
+	lw 		$a0, 0($a0)
+
+	jal		ERASE_BEE						# erase bee
+
+	jal	 	MOVE_BEE2						# update bee position
+
+	la 		$a0, bee2Address				# get bee2 address
+	lw 		$a0, 0($a0)
+	
+	jal 	DRAW_BEE						# draw bee
 
 	j MAIN
 ############# Keyboard press ###############################
@@ -579,6 +613,111 @@ MOVE_DOWN_COMPLETE:
 	lw 		$ra, 0($sp)			# pop off prev stored $ra
 	addi 	$sp, $sp, 4		# update stack pointer
 	jr 		$ra
+
+
+################ Bee movement ################################
+MOVE_BEE1:
+	
+	la		$t0, bee1XPos		# store bee1 xpos address
+	lw		$t1, 0($t0)			# store bee1 xpos
+
+	beq 	$s2, $zero, BEE1_LEFT	# if bee1 is moving left
+
+BEE1_RIGHT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $t3, -beeWidth		# subtract bee width	
+	addi 	$t1, $t1, 1				# add 1 to xpos
+	bge		$t1, $t3, BEE1_CHANGE_TO_LEFT	# if  bee1 is moving off the screen right
+
+	sw		$t1, 0($t0)				# update bee1 xpos
+
+	la		$t0, bee1Address		# store bee1 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, UNIT_WIDTH			# move bee 1 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE1_MOVE
+
+BEE1_LEFT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t1, $t1, -1			# subtract 1 from xpos
+	bLe		$t1, $zero, BEE1_CHANGE_TO_RIGHT	# if  bee1 is moving off the screen left
+
+	sw		$t1, 0($t0)				# update bee1 xpos
+
+	la		$t0, bee1Address		# store bee1 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, -UNIT_WIDTH			# move bee 1 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE1_MOVE
+
+BEE1_CHANGE_TO_LEFT:
+	addi 	$s2, $zero, 0			# change x direction to left
+	j 		END_BEE1_MOVE
+
+BEE1_CHANGE_TO_RIGHT:
+	addi 	$s2, $zero, 1			# change x direction to right
+
+END_BEE1_MOVE:
+
+	jr		$ra
+
+############### Bee 2 movement ##############################
+MOVE_BEE2:
+	
+	la		$t0, bee2XPos		# store bee1 xpos address
+	lw		$t1, 0($t0)			# store bee1 xpos
+
+	beq 	$s3, $zero, BEE2_LEFT	# if bee1 is moving left
+
+BEE2_RIGHT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $t3, -beeWidth		# subtract bee width	
+	addi 	$t1, $t1, 1				# add 1 to xpos
+	bge		$t1, $t3, BEE2_CHANGE_TO_LEFT	# if  bee2 is moving off the screen right
+
+	sw		$t1, 0($t0)				# update bee2 xpos
+
+	la		$t0, bee2Address		# store bee2 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, UNIT_WIDTH			# move bee 2 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE2_MOVE
+
+BEE2_LEFT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t1, $t1, -1			# subtract 1 from xpos
+	bLe		$t1, $zero, BEE2_CHANGE_TO_RIGHT	# if  bee2 is moving off the screen left
+
+	sw		$t1, 0($t0)				# update bee2 xpos
+
+	la		$t0, bee2Address		# store bee2 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, -UNIT_WIDTH			# move bee 2 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE2_MOVE
+
+BEE2_CHANGE_TO_LEFT:
+	addi 	$s3, $zero, 0			# change x direction to left
+	j 		END_BEE2_MOVE
+
+BEE2_CHANGE_TO_RIGHT:
+	addi 	$s3, $zero, 1			# change x direction to right
+
+END_BEE2_MOVE:
+
+	jr		$ra
 
 ################ Level reset ################################
 LEVEL_RESET:
@@ -1351,6 +1490,31 @@ DRAW_BEE:
 	sw $t0, 524($a0)
 	
 	jr $ra
+
+
+############### Erase bee #########################
+
+ERASE_BEE:
+	add $t0, $zero, LIGHT_GREEN  # Repaint light green
+	sw $t0, 0($a0)			
+	sw $t0, 8($a0)
+	sw $t0, 16($a0)
+	sw $t0, 256($a0)
+	sw $t0, 264($a0)
+	sw $t0, 272($a0)
+	sw $t0, 512($a0)
+	sw $t0, 520($a0)
+	sw $t0, 528($a0)
+	sw $t0, 4($a0)				
+	sw $t0, 12($a0)
+	sw $t0, 260($a0)
+	sw $t0, 268($a0)
+	sw $t0, 516($a0)
+	sw $t0, 524($a0)
+	
+	jr $ra
+
+############################################333
 	
 DRAW_WATER:
 	add $t0, $zero, INDIGO   	# Store Indigo
