@@ -115,16 +115,16 @@ winScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xf
 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 
 pL1xpos: .word 0x0000000, 0x0000010, 0x0000026, 0x000010, 0x0000000
-pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001B, 0x0000011
+pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001B, 0x0000011
 pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000012
 
 pL2xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002B, 0x0000038, 0x0000020, 0x0000018
 pL2ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
 pL2width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x000000E, 0x0000008, 0x0000010, 0x0000010
 
-pL3xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x0000030, 0x0000038, 0x0000020, 0x0000018
+pL3xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002E, 0x0000038, 0x0000020, 0x0000018
 pL3ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
-pL3width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x000000A, 0x0000008, 0x0000010, 0x0000010
+pL3width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x0000012, 0x0000008, 0x0000010, 0x0000010
 
 
 backgroundColours: .space 65536
@@ -145,11 +145,12 @@ points: .word 0
 lives: .word 3
 
 bee1XPos: .word 0
-bee2XPos: .word 40
+bee2XPos: .word 56
 
 bee1Address: .word 0x10008000
-bee2Address: .word 0x10009EA0
+bee2Address: .word 0x100097E0
 charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044, 2304, 2320, 20, 1072, 1812
+
 
 .eqv collisionArrayLength 14
 .eqv BASE_ADDRESS 0x10008000
@@ -225,10 +226,13 @@ charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044,
 
 .eqv beeWidth 6
 
-#s0 is horizontal direction 0 means left 1 means right
+########## Global variables ##################
+# s0 is horizontal direction 0 means left 1 means right
 # s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
 # s2 is bee1 direction 0 is left, 1 is right
 # s3 is bee2 direction 0 is left, 1 is right
+# s4 is bee timer
+# s5 gamePlaying boolean
 
 .text
 
@@ -260,15 +264,10 @@ START_GAME:
 	addi	$s2, $zero, 1		# set bee 1 to move right		
 	
 	addi	$s3, $zero, 1		# set bee 2 to move right
-	#la 		$a0, addressBee
-	#lw 		$a0, 0($a0)
-	
-	#jal 	DRAW_BEE
-	
-	#la 		$a0, addressWater
-	#lw 		$a0, 0($a0)
-	
-	#jal 	DRAW_WATER
+
+	addi	$s4, $zero, 0		# set bee timer to false
+
+	addi	$s5, $zero, 1		# set game playing to true
 
 	la 		$a0, BASE_ADDRESS
 
@@ -288,6 +287,8 @@ MAIN:
 	beq 	$t8, 1, keypress_happened
 
 AFTER_KEYPRESS:
+
+	beq		$s5, $zero, MAIN				# if gamePlaying is false, then jump back to MAIN
 
 	ble 	$s1, $zero, ACTIVATE_GRAVITY	# If not jumping then activate gravity
 	jal 	MOVE_UP							# If jumping, then move up
@@ -309,6 +310,13 @@ LEFT:
 	jal 	DRAW_CHAR_LEFT					# Draw Character
 
 AFTER_CHAR_DRAW:
+
+	bne		$s4, $zero, MOVE_BEE_TRUE		# move bee when $s4 != 0
+	addi	$s4, $zero, 1					 # if $s4 = 0, then set it to 1
+	j		AFTER_BEE_MOVED
+MOVE_BEE_TRUE:
+	addi	$s4, $zero, 0					 # if $s4 = 1, then set it to 0
+
 	la 		$a0, bee1Address				# get bee1 address
 	lw 		$a0, 0($a0)
 
@@ -333,6 +341,7 @@ AFTER_CHAR_DRAW:
 	
 	jal 	DRAW_BEE						# draw bee
 
+AFTER_BEE_MOVED:
 	jal 	CHECK_BEE_COLLISION					# check for bee collision
 
 	j MAIN
@@ -350,10 +359,6 @@ keypress_happened:
 
 ################## Quit Game #################################
 QUIT:
-	
-	li 		$v0, 4		      
-	la 		$a0, promptEnd				# Prints the end prompt text
-	syscall  
 
 	li 		$v0, 10 						# terminate the program gracefully
 	syscall
@@ -682,9 +687,9 @@ BEE1_RIGHT:
 	j 		END_BEE1_MOVE
 
 BEE1_LEFT:
-	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $zero, beeWidth		# store num of units for bee width of
 	addi 	$t1, $t1, -1			# subtract 1 from xpos
-	bLe		$t1, $zero, BEE1_CHANGE_TO_RIGHT	# if  bee1 is moving off the screen left
+	bLe		$t1, $t3, BEE1_CHANGE_TO_RIGHT	# if  bee1 is moving off the screen left
 
 	sw		$t1, 0($t0)				# update bee1 xpos
 
@@ -734,9 +739,9 @@ BEE2_RIGHT:
 	j 		END_BEE2_MOVE
 
 BEE2_LEFT:
-	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $zero, beeWidth		# store num of units for beeWidth
 	addi 	$t1, $t1, -1			# subtract 1 from xpos
-	bLe		$t1, $zero, BEE2_CHANGE_TO_RIGHT	# if  bee2 is moving off the screen left
+	bLe		$t1, $t3, BEE2_CHANGE_TO_RIGHT	# if  bee2 is moving off the screen left
 
 	sw		$t1, 0($t0)				# update bee2 xpos
 
@@ -886,10 +891,10 @@ END_ADD_POINTS:
 
 ############### Game over #########################
 GAME_OVER:
-
+	addi $s5, $zero, 0		# set game playing to false
 	jal DRAW_BACKGROUND
 	jal DRAW_GAME_OVER
-	jal QUIT
+	jal MAIN
 
 ################ Level 2 ###########################
 
@@ -899,9 +904,10 @@ GAME_OVER:
 ################ Game Won #############################
 DRAW_WON:
 
+	addi $s5, $zero, 0		# set game playing to false
 	jal DRAW_BACKGROUND
 	jal DRAW_WIN_SCREEN
-	#jal QUIT
+	jal MAIN
 
 ################ Repaint ##################################
 	
