@@ -81,16 +81,58 @@ gameOverScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 
+winScreen: .word 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff88125f, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 
+0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d, 0xff86f08d
 
 pL1xpos: .word 0x0000000, 0x0000010, 0x0000026, 0x000010, 0x0000000
-pL1ypos: .word 0x0000038, 0x0000030, 0x0000027, 0x00001A, 0x0000011
+pL1ypos: .word 0x0000038, 0x0000030, 0x0000028, 0x00001B, 0x0000011
 pL1width: .word 0x0000010, 0x0000012, 0x0000010, 0x000012, 0x0000012
+
+pL2xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002B, 0x0000038, 0x0000020, 0x0000018
+pL2ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
+pL2width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x000000E, 0x0000008, 0x0000010, 0x0000010
+
+pL3xpos: .word 0x0000000, 0x0000010, 0x0000020, 0x000010, 0x0000000, 0x000002E, 0x0000038, 0x0000020, 0x0000018
+pL3ypos: .word 0x0000038, 0x0000030, 0x0000030, 0x00001A, 0x0000011, 0x0000029, 0x0000020, 0x000001A, 0x0000010
+pL3width: .word 0x0000010, 0x000000F, 0x0000008, 0x000009, 0x000000A, 0x0000012, 0x0000008, 0x0000010, 0x0000010
+
+
 backgroundColours: .space 65536
 xposChar: .word 0x0000000
 yposChar: .word 0x0000000
 addressChar: .word 0x1000A800
 addressBee: .word 0x10008000
-addressWater: .word 0x10008528
+#addressWater: .word 0x10008528
 charJumpTimer: .word 10
 charHorDir:	.word 1
 # 0 - left
@@ -102,7 +144,15 @@ jumpTimer: .word 0
 points: .word 0
 lives: .word 3
 
+bee1XPos: .word 0
+bee2XPos: .word 56
 
+bee1Address: .word 0x10008000
+bee2Address: .word 0x100097E0
+charCollisionAddresses: .word -256, -252, -248, -244, -240, -4, 508, 1020, 2044, 2304, 2320, 20, 1044, 1812
+
+
+.eqv collisionArrayLength 14
 .eqv BASE_ADDRESS 0x10008000
 
 .eqv ZERO 0
@@ -120,6 +170,9 @@ lives: .word 3
 
 .eqv HEART_ADDRESS 0x1000BB00
 .eqv SPACE_BETWEEN_HEART 0x00000028
+.eqv DEFAULT_NUM_LIVES 3
+
+.eqv DEFAULT_NUM_POINTS 0
 
 .eqv GAME_OVER_DIMENSION 0x00000020
 .eqv GAME_OVER_LOCATION 0x10008A40
@@ -163,11 +216,26 @@ lives: .word 3
 .eqv CLOUD_WIDTH  0x00000100
 .eqv CLOUD_HEIGHT 0x00000006
 
-.eqv level1NumPlatform 4
+.eqv level1NumPlatform 5
+.eqv level2NumPlatform 9
+.eqv level3NumPlatform 8
 
-#s0 is horizontal direction 0 means left 1 means right
+.eqv addressWaterLevel1 0x10008C04
+.eqv addressWaterLevel2 0x10008C04
+.eqv addressWaterLevel3 0x10008C04
+
+.eqv beeWidth 6
+.eqv DEFAULT_BEE1_ADDRESS 0x10008000
+.eqv DEFAULT_BEE2_ADDRESS 0x100097E0
+.eqv DEFAULT_BEE1_XPOS 0
+.eqv DEFAULT_BEE2_XPOS 56
+
+########## Global variables ##################
+# s0 is horizontal direction 0 means left 1 means right
 # s1 is vertical direction: 0 means on platform 1 means up,-1 means moving down
-
+# s2 is bee1 direction 0 is left, 1 is right
+# s3 is bee2 direction 0 is left, 1 is right
+# s4 is bee timer
 
 .text
 
@@ -185,18 +253,38 @@ START_GAME:
 	la 		$t3, addressChar	# load char address
 	addi 	$t4, $zero, CHAR_START_ADDRESS	# # store start address for character
 	sw 		$t4, 0($t3)			# stores character address
+
+	la 		$t8, lives			# load lives
+	addi 	$t9, $zero, DEFAULT_NUM_LIVES	# set default num lives
+	sw 	$t9, 0($t8)	
+
+	la 		$t8, points						# load points
+	addi 	$t9, $zero, DEFAULT_NUM_POINTS	# set default num lives
+	sw 	$t9, 0($t8)	
+
+	la		$t8, bee1XPos						# load bee 1 xpos address
+	addi	$t9, $zero, DEFAULT_BEE1_XPOS 	#  store default bee 1 xpos
+	sw		$t9, 0($t8)
+
+	la		$t8, bee2XPos						# load bee 2 xpos address
+	addi	$t9, $zero, DEFAULT_BEE2_XPOS 		#  store default bee 2 xpos
+	sw		$t9, 0($t8)
+
+	la		$t8, bee1Address					# load bee 1 address
+	addi	$t9, $zero, DEFAULT_BEE1_ADDRESS	#  store default bee 1 address
+	sw		$t9, 0($t8)
+
+	la		$t8, bee2Address					# load bee 2 address
+	addi	$t9, $zero, DEFAULT_BEE2_ADDRESS	#  store default bee 2 address
+	sw		$t9, 0($t8)
 	
 	jal 	DRAW_L1				# Draw Level 1
+
+	addi	$s2, $zero, 1		# set bee 1 to move right		
 	
-	la 		$a0, addressBee
-	lw 		$a0, 0($a0)
-	
-	jal 	DRAW_BEE
-	
-	la 		$a0, addressWater
-	lw 		$a0, 0($a0)
-	
-	jal 	DRAW_WATER
+	addi	$s3, $zero, 1		# set bee 2 to move right
+
+	addi	$s4, $zero, 0		# set bee timer to false
 
 	la 		$a0, BASE_ADDRESS
 
@@ -238,6 +326,39 @@ LEFT:
 
 AFTER_CHAR_DRAW:
 
+	bne		$s4, $zero, MOVE_BEE_TRUE		# move bee when $s4 != 0
+	addi	$s4, $zero, 1					 # if $s4 = 0, then set it to 1
+	j		AFTER_BEE_MOVED
+MOVE_BEE_TRUE:
+	addi	$s4, $zero, 0					 # if $s4 = 1, then set it to 0
+
+	la 		$a0, bee1Address				# get bee1 address
+	lw 		$a0, 0($a0)
+
+	jal		ERASE_BEE						# erase bee
+
+	jal	 	MOVE_BEE1						# update bee position
+
+	la 		$a0, bee1Address				# get bee1 address
+	lw 		$a0, 0($a0)
+	
+	jal 	DRAW_BEE						# draw bee
+
+	la 		$a0, bee2Address				# get bee2 address
+	lw 		$a0, 0($a0)
+
+	jal		ERASE_BEE						# erase bee
+
+	jal	 	MOVE_BEE2						# update bee position
+
+	la 		$a0, bee2Address				# get bee2 address
+	lw 		$a0, 0($a0)
+	
+	jal 	DRAW_BEE						# draw bee
+
+AFTER_BEE_MOVED:
+	jal 	CHECK_BEE_COLLISION					# check for bee collision
+
 	j MAIN
 ############# Keyboard press ###############################
 
@@ -253,10 +374,6 @@ keypress_happened:
 
 ################## Quit Game #################################
 QUIT:
-	
-	li 		$v0, 4		      
-	la 		$a0, promptEnd				# Prints the end prompt text
-	syscall  
 
 	li 		$v0, 10 						# terminate the program gracefully
 	syscall
@@ -264,10 +381,15 @@ QUIT:
 ################## Player Movement ######################################
 ###### Start jump ##############
 START_JUMP:
+	
+	addi	$t2, $zero, 1					# store 1 in $t2
 
-	bne 	$s1, $zero, END_OF_START_JUMP	# If already jumping or falling, don't jump
-	addi 	$s1, $zero, 1					# set jump variable to true
+	beq		$s1, $t2, START_NEW_JUMP		# start new jump if $s2 = 1  
 
+	bne 	$s1, $zero, END_OF_START_JUMP	# If already jumped twice or falling, don't jump
+
+START_NEW_JUMP:
+	addi 	$s1, $s1, 1						# add a jump to jumpVariable
 	la 		$t0, jumpTimer					# get address of jump timer
 
 	addi 	$t1, $zero, JUMP_TIME_LENGTH	# get time that jump should last
@@ -328,11 +450,6 @@ END_OF_JUMP_FUNC:
 
 MOVE_LEFT:
 
-	# Prints  prompt text
-	li 		$v0, 4		      
-	la 		$a0, promptA
-	syscall  
-
 	la 		$t2, addressChar	# load address for var
 	lw 		$t1, 0($t2)			# load character address
 
@@ -356,9 +473,11 @@ LEFT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS_LEFT				# check each pixel on the left of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, -UNIT_WIDTH					# check if two units left is a platform
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, LEFT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move left
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, UNIT_WIDTH					# reset $t5 to one unit left
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
@@ -393,6 +512,7 @@ LEFT_UPDATE_DIR:
 
 MOVE_RIGHT:
 
+
 	la 		$t2, addressChar					# load address for var
 	lw 		$t1, 0($t2)							# load character address
 
@@ -419,11 +539,11 @@ RIGHT_COLLISION:
 	bge 	$t7, $t6, UPDATE_XPOS					# check each pixel on the right of the character
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
+	beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi	$t5, $t5, UNIT_WIDTH					# check if two units right is a platform
 	lw 		$t8, 0($t5)								# load colour at current unit
 	beq 	$t8, DARK_GREEN, RIGHT_UPDATE_DIR		# Check if pixel is a platform, if it is, do not move right
 	addi	$t5, $t5, -UNIT_WIDTH					# reset $t5 to one unit right
-	# beq		$t8, INDIGO, ADD_POINTS					# Check if pixel is a water drop
 	addi 	$t5, $t5, WIDTH_PIXELS					# get address of next unit
 	addi 	$t7, $t7, 1								# inecrease iterator
 	j 		RIGHT_COLLISION							# jump to beginning of loop
@@ -453,6 +573,7 @@ RIGHT_UPDATE_DIR:
 
 ############## Gravity ################################
 GRAVITY:
+
 
 	addi 	$sp, $sp, -4	# store $ra on stack
 	sw 		$ra, 0($sp)
@@ -486,6 +607,7 @@ GRAVITY_LOOP:
 	lw 		$t5, 0($t2)								# load colour at current unit
 	beq 	$t5, DARK_GREEN, ON_PLATFORM			# Check if pixel is a platform
 	beq 	$t5, CLOUD_COLOR, LEVEL_RESET					# Check if pixel is a platform
+	beq 	$t5, INDIGO, ADD_POINTS					# if pixel is water, add a point 
 	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
 	j 		GRAVITY_LOOP								# jump to beginning of loop
 	#lw $t3, 0($t2)			# get colour below bottom left of character
@@ -520,17 +642,162 @@ MOVE_DOWN_COMPLETE:
 	addi 	$sp, $sp, 4		# update stack pointer
 	jr 		$ra
 
+################ Check bee collision ############################
+
+CHECK_BEE_COLLISION:
+
+	addi $sp, $sp, -4						# move stack pointer
+	sw $ra, 0($sp)							# push stack pointer on to stack
+
+	addi $t0, $zero, collisionArrayLength	#get array length
+	
+	la 	$t1, charCollisionAddresses			# get address for collsiion check array
+	lw $t4, 0($t1)							# get character values
+
+	addi $t2, $zero, 0						# loop iterator
+
+	la $t3, addressChar						# load character address
+	lw $t3, 0($t3)							# store character address in $t3
+
+COLLISION_LOOP:
+	bge $t2, $t0, END_COLLISION_LOOP
+	lw $t4, 0($t1)							# get character collision check value
+	add $t5, $t3, $t4						# get address to check in game
+	lw $t5, 0($t5)							# load colour
+	beq	$t5, YELLOW, COLLISION_DETECTED		# if unit is yellow, then collision occurred
+	addi $t1, $t1, 4						# move to next val in array
+	addi $t2, $t2, 1						# update iterator
+	j COLLISION_LOOP
+
+COLLISION_DETECTED:
+	jal LEVEL_RESET							# reset level and lose 1 life
+
+END_COLLISION_LOOP:
+
+	lw $ra, 0($sp)							# pop $ra
+	addi $sp, $sp, 4						# update stack pointer
+
+	jr $ra
+
+################ Bee movement ################################
+MOVE_BEE1:
+	
+	la		$t0, bee1XPos		# store bee1 xpos address
+	lw		$t1, 0($t0)			# store bee1 xpos
+
+	beq 	$s2, $zero, BEE1_LEFT	# if bee1 is moving left
+
+BEE1_RIGHT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $t3, -beeWidth		# subtract bee width	
+	addi 	$t1, $t1, 1				# add 1 to xpos
+	bge		$t1, $t3, BEE1_CHANGE_TO_LEFT	# if  bee1 is moving off the screen right
+
+	sw		$t1, 0($t0)				# update bee1 xpos
+
+	la		$t0, bee1Address		# store bee1 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, UNIT_WIDTH			# move bee 1 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE1_MOVE
+
+BEE1_LEFT:
+	addi 	$t3, $zero, beeWidth		# store num of units for bee width of
+	addi 	$t1, $t1, -1			# subtract 1 from xpos
+	bLe		$t1, $t3, BEE1_CHANGE_TO_RIGHT	# if  bee1 is moving off the screen left
+
+	sw		$t1, 0($t0)				# update bee1 xpos
+
+	la		$t0, bee1Address		# store bee1 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, -UNIT_WIDTH			# move bee 1 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE1_MOVE
+
+BEE1_CHANGE_TO_LEFT:
+	addi 	$s2, $zero, 0			# change x direction to left
+	j 		END_BEE1_MOVE
+
+BEE1_CHANGE_TO_RIGHT:
+	addi 	$s2, $zero, 1			# change x direction to right
+
+END_BEE1_MOVE:
+
+	jr		$ra
+
+############### Bee 2 movement ##############################
+MOVE_BEE2:
+	
+	la		$t0, bee2XPos		# store bee1 xpos address
+	lw		$t1, 0($t0)			# store bee1 xpos
+
+	beq 	$s3, $zero, BEE2_LEFT	# if bee1 is moving left
+
+BEE2_RIGHT:
+	addi 	$t3, $zero, WIDTH		# store num of units for width of screen
+	addi 	$t3, $t3, -beeWidth		# subtract bee width	
+	addi 	$t1, $t1, 1				# add 1 to xpos
+	bge		$t1, $t3, BEE2_CHANGE_TO_LEFT	# if  bee2 is moving off the screen right
+
+	sw		$t1, 0($t0)				# update bee2 xpos
+
+	la		$t0, bee2Address		# store bee2 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, UNIT_WIDTH			# move bee 2 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE2_MOVE
+
+BEE2_LEFT:
+	addi 	$t3, $zero, beeWidth		# store num of units for beeWidth
+	addi 	$t1, $t1, -1			# subtract 1 from xpos
+	bLe		$t1, $t3, BEE2_CHANGE_TO_RIGHT	# if  bee2 is moving off the screen left
+
+	sw		$t1, 0($t0)				# update bee2 xpos
+
+	la		$t0, bee2Address		# store bee2 address
+	lw		$t1, 0($t0)				
+
+	addi	$t1, $t1, -UNIT_WIDTH			# move bee 2 unit right
+
+	sw		$t1, 0($t0)				# store updated bee address
+
+	j 		END_BEE2_MOVE
+
+BEE2_CHANGE_TO_LEFT:
+	addi 	$s3, $zero, 0			# change x direction to left
+	j 		END_BEE2_MOVE
+
+BEE2_CHANGE_TO_RIGHT:
+	addi 	$s3, $zero, 1			# change x direction to right
+
+END_BEE2_MOVE:
+
+	jr		$ra
+
 ################ Level reset ################################
 LEVEL_RESET:
 
-	addi $sp, $sp, -4		# move stack pointer
-	sw $ra, 0($sp)			# store $ra onto stack
-	
 	la $t8, lives			# load lives
 	lw $t9, 0($t8)			
 
 	addi $t9, $t9, -1		# subtract 1 life
 	sw $t9, 0($t8)			# update num lives variable
+
+RESTART_LEVEL:
+	la $t8, lives			# load lives
+	lw $t9, 0($t8)	
+
+	addi $sp, $sp, -4		# move stack pointer
+	sw $ra, 0($sp)			# store $ra onto stack
 
 
 	beq $t9, $zero, GAME_OVER	# If 0 lives remain, then game over
@@ -596,26 +863,52 @@ END_LIVES_LOOP:
 ################ Add point #################################
 ADD_POINTS:
 
+	addi $sp, $sp, -4		#update pointer
+	sw $ra, 0($sp)			# push $ra to stack
+
 	la $t8, points			# load address of points
 	lw $t9, 0($t8)			# load number of points
 
-	addi $t9, $t9, 1				# add 1 point
+	addi $t9, $t9, 1		# add 1 point
+
+	sw $t9, 0($t8)			# store num points
 
 	addi $t7, $zero, 1		# $t7 = 1
 	
-	#beq $t9, $t7, LEVEL_2	# if 1 point move to level 2
-
+	beq $t9, $t7, GO_TO_LEVEL_2	# if 1 point move to level 2
+	#j END_ADD_POINTS
 	addi $t7, $t7, 1		# $t7 = 2
 
-	#beq $t9, $t7, LEVEL_3   # if 2 points move to level 3
+	beq $t9, $t7, GO_TO_LEVEL_3   # if 2 points move to level 3
 
 	addi $t7, $t7, 1		# $t7 = 3
+	
+	beq $t9, $t7, GO_TO_WIN   # if 3 points move to win screen
+
+GO_TO_LEVEL_2:
+	jal DRAW_L2
+	jal RESTART_LEVEL
+	j END_ADD_POINTS
+
+GO_TO_LEVEL_3:
+	jal DRAW_L3
+	jal RESTART_LEVEL
+	j END_ADD_POINTS
+
+GO_TO_WIN:
+	jal DRAW_WON
+	j END_ADD_POINTS
+
+END_ADD_POINTS:
 
 	#beq $t9, $t7, GAME_WON   # if 3 points, then won game
+	lw $ra, 0($sp)			# pop $ra
+	addi $sp, $sp, 4
+
+	jr $ra
 
 ############### Game over #########################
 GAME_OVER:
-
 	jal DRAW_BACKGROUND
 	jal DRAW_GAME_OVER
 	jal QUIT
@@ -626,7 +919,11 @@ GAME_OVER:
 ################ Level 3 ###########################
 
 ################ Game Won #############################
+DRAW_WON:
 
+	jal DRAW_BACKGROUND
+	jal DRAW_WIN_SCREEN
+	jal QUIT
 
 ################ Repaint ##################################
 	
@@ -644,7 +941,7 @@ DRAW_BACKGROUND:
 	li $t3, BLUE					# $t3 stores the blue colour code
 
 	addi $t4, $zero, BASE_ADDRESS
-	addi $t5, $t4, 16384 			# Store bottom right unit in s5
+	addi $t5, $t4, 16384 			# Store bottom right unit in t5
 	#addi $t5, $zero, BOTTOM_RIGHT_UNIT  	# Store bottom right unit in t5
 	
 	addi $t4, $zero, BASE_ADDRESS 		# $t4 stores the base address for display
@@ -755,7 +1052,7 @@ DRAW_L1:
 	add $t8, $zero, $zero 		# define t8 to be platform index
 	li $t9, level1NumPlatform	# store num of platforms in level 1
 	
-	add $t7, $t7, 4			# store 4 in t7
+	add $t7, $zero, 4			# store 4 in t7
 	mult $t9, $t7			# mult num of platforms by 4
 	mflo $t9				# store num platforms * 4 in $t9
 	
@@ -814,6 +1111,185 @@ DRAW_PFORM_LOOP:
 	
 	
 END_DRAW_L1:
+
+	addi 	$a0, $zero, addressWaterLevel1
+	
+	jal 	DRAW_WATER
+
+	jal DRAW_LIVES
+
+	lw $t3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $t3				# jump to prev function
+	
+
+############# Draw Level 2 #############################
+
+
+DRAW_L2:
+
+	# Draw background
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	jal DRAW_BACKGROUND  	# Draw background
+
+
+	# draw level 1 platforms
+	add $t8, $zero, $zero 		# define t8 to be platform index
+	li $t9, level2NumPlatform	# store num of platforms in level 1
+	
+	add $t7, $zero, 4			# store 4 in t7
+	mult $t9, $t7			# mult num of platforms by 4
+	mflo $t9				# store num platforms * 4 in $t9
+	
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	#addi $a0, $zero, HEART_ADDRESS
+
+	#jal DRAW_LIVES
+	
+DRAW_PFORM_LOOP2:
+
+	 
+	# Draw platforms for the level
+	bge $t8, $t9, END_DRAW_L2  	# continue loop until index = num of platforms
+	
+	# Get platform at current index 
+	
+	la $t0, pL2xpos
+	la $t1, pL2ypos
+	la $t2, pL2width
+	
+	# Draw platform rectangle
+	
+	add $t0, $t0, $t8	# t3 = addr(xpos) + i
+	add $t1, $t1, $t8	# t3 = addr(ypos) + i
+	add $t2, $t2, $t8	# t3 = addr(width) + i
+	
+	#move $a0, $t0	
+	#li $v0, 1
+	#syscall 
+
+	# Prints  prompt text
+	#li 		$v0, 4		      
+	#la 		$a0, promptA
+	#syscall  
+	
+	# push arguments onto stack
+	lw $t3, 0($t0)		#$t3 = xpos[i]
+	sw $t3, -4($sp) 	# push xpos onto stack
+	lw $t3, 0($t1)		#$t3 = ypos[i]
+	sw $t3, -8($sp) 	# push ypos onto stack
+	lw $t3, 0($t2)		#$t3 = width[i]
+	sw $t3, -12($sp) 	# push width onto stack
+	addi $t3, $zero, 2 	# set height of platform to 2
+	sw $t3, -16($sp) 	# push height onto stack
+	li $t3, DARK_GREEN 	# make platforms dark green
+	sw $t3, -20($sp) 	# push colour onto stack
+	
+	addi $sp, $sp, -20 	# move pointer to make space
+	
+	jal DRAW_REC
+	
+	addi $t8, $t8, 4	# update index
+	j DRAW_PFORM_LOOP2	# jump to beginning of loop
+	
+	
+END_DRAW_L2:
+
+	addi		$a0, $zero, addressWaterLevel2
+	
+	jal 	DRAW_WATER
+
+	jal DRAW_LIVES
+
+	lw $t3, 0($sp)		# pop prev $ra from stack
+	addi $sp, $sp, 4	# update stacker pointer
+	jr $t3				# jump to prev function
+
+############# Draw Level 3 #############################
+
+
+DRAW_L3:
+
+	# Draw background
+
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	jal DRAW_BACKGROUND  	# Draw background
+
+
+	# draw level 3 platforms
+	add $t8, $zero, $zero 		# define t8 to be platform index
+	li $t9, level3NumPlatform	# store num of platforms in level 3
+	
+	add $t7, $zero, 4			# store 4 in t7
+	mult $t9, $t7			# mult num of platforms by 4
+	mflo $t9				# store num platforms * 4 in $t9
+	
+	addi $sp, $sp, -4 		# move pointer to make space
+	sw $ra, 0($sp) 			# save $ra to the stack
+
+	#addi $a0, $zero, HEART_ADDRESS
+
+	#jal DRAW_LIVES
+	
+DRAW_PFORM_LOOP3:
+
+	 
+	# Draw platforms for the level
+	bge $t8, $t9, END_DRAW_L3  	# continue loop until index = num of platforms
+	
+	# Get platform at current index 
+	
+	la $t0, pL3xpos
+	la $t1, pL3ypos
+	la $t2, pL3width
+	
+	# Draw platform rectangle
+	
+	add $t0, $t0, $t8	# t3 = addr(xpos) + i
+	add $t1, $t1, $t8	# t3 = addr(ypos) + i
+	add $t2, $t2, $t8	# t3 = addr(width) + i
+	
+	#move $a0, $t0	
+	#li $v0, 1
+	#syscall 
+
+	# Prints  prompt text
+	#li 		$v0, 4		      
+	#la 		$a0, promptA
+	#syscall  
+	
+	# push arguments onto stack
+	lw $t3, 0($t0)		#$t3 = xpos[i]
+	sw $t3, -4($sp) 	# push xpos onto stack
+	lw $t3, 0($t1)		#$t3 = ypos[i]
+	sw $t3, -8($sp) 	# push ypos onto stack
+	lw $t3, 0($t2)		#$t3 = width[i]
+	sw $t3, -12($sp) 	# push width onto stack
+	addi $t3, $zero, 2 	# set height of platform to 2
+	sw $t3, -16($sp) 	# push height onto stack
+	li $t3, DARK_GREEN 	# make platforms dark green
+	sw $t3, -20($sp) 	# push colour onto stack
+	
+	addi $sp, $sp, -20 	# move pointer to make space
+	
+	jal DRAW_REC
+	
+	addi $t8, $t8, 4	# update index
+	j DRAW_PFORM_LOOP3	# jump to beginning of loop
+	
+	
+END_DRAW_L3:
+
+	addi		$a0, $zero, addressWaterLevel3
+	
+	jal 	DRAW_WATER
 
 	jal DRAW_LIVES
 
@@ -1077,6 +1553,31 @@ DRAW_BEE:
 	sw $t0, 524($a0)
 	
 	jr $ra
+
+
+############### Erase bee #########################
+
+ERASE_BEE:
+	add $t0, $zero, LIGHT_GREEN  # Repaint light green
+	sw $t0, 0($a0)			
+	sw $t0, 8($a0)
+	sw $t0, 16($a0)
+	sw $t0, 256($a0)
+	sw $t0, 264($a0)
+	sw $t0, 272($a0)
+	sw $t0, 512($a0)
+	sw $t0, 520($a0)
+	sw $t0, 528($a0)
+	sw $t0, 4($a0)				
+	sw $t0, 12($a0)
+	sw $t0, 260($a0)
+	sw $t0, 268($a0)
+	sw $t0, 516($a0)
+	sw $t0, 524($a0)
+	
+	jr $ra
+
+############################################333
 	
 DRAW_WATER:
 	add $t0, $zero, INDIGO   	# Store Indigo
@@ -1149,11 +1650,6 @@ GAME_OVER_NEXT_COL:
 
 	bge $t7, $t5, GAME_OVER_NEXT_COL_DONE
 
-		# Prints  prompt text
-	li 		$v0, 4		      
-	la 		$a0, promptB
-	syscall 
-
 	lw $t4, 0($t8)			# get color of location
 	sw $t4, 0($t3)			# update unit of game
 
@@ -1173,6 +1669,46 @@ GAME_OVER_NEXT_COL_DONE:
 	
 
 DONE_GAME_OVER:
+	jr $ra						# return to caller function
+
+########### Game win screen ######################
+DRAW_WIN_SCREEN:
+
+	la $t8, winScreen	# load address of game over screen
+
+	addi $t7, $zero, 0		# iterator for loop columns
+	addi $t6, $zero, 0		# iterator for loop row
+	addi $t5, $zero, GAME_OVER_DIMENSION
+
+	addi $t3, $zero, GAME_OVER_LOCATION 	# address of game
+
+WIN_NEXT_ROW:
+	bge $t6, $t5, DONE_WIN		# iterate  over rows
+	
+
+WIN_NEXT_COL:
+
+	bge $t7, $t5, WIN_NEXT_COL_DONE
+
+	lw $t4, 0($t8)			# get color of location
+	sw $t4, 0($t3)			# update unit of game
+
+	addi $t3, $t3, UNIT_WIDTH	# update address of game
+	addi $t7, $t7, 1			# update loop iterator
+	addi $t8, $t8, UNIT_WIDTH	# update variable iterator for array
+
+	j WIN_NEXT_COL
+
+WIN_NEXT_COL_DONE:
+	addi $t7, $zero, 0			# reset col iterator to 0
+	addi $t6, $t6, 1			# update row iterator
+
+	addi $t3, $t3, 128	# update address of game
+
+	J WIN_NEXT_ROW
+	
+
+DONE_WIN:
 	jr $ra						# return to caller function
 
 sw $t2, 0($t4)
