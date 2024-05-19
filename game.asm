@@ -37,12 +37,12 @@
 # - when the player collects a third water item, they win the game
 # - the player loses when they lose three lives
 # - a player loses a life when they hit the white cloud at the bottom
-# 	of the screen of when they hit a bee
+# 	of the screen or when they hit a bee
 # - when they lose a life, they return to the beginning of the level
-# - use w to jump, a to move left, and d to move right
+# - use 'w' to jump, 'a' to move left, and 'd' to move right
 # - the player cannot move through platforms
 # - click r to reset the game and q to quit the game
-# - note: when the game over or "you did it" screen is reached, then
+# - note: when the "game over" or "you did it" screen is reached, then
 #   the program terminates
 #####################################################################
 
