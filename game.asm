@@ -6,21 +6,21 @@
 # Student: Madison Majarais
 #
 # Bitmap Display Configuration:
-# - Unit width in pixels: 4 (update this as needed)
-# - Unit height in pixels: 4 (update this as needed)
-# - Display width in pixels: 256 (update this as needed)
-# - Display height in pixels: 256 (update this as needed)
+# - Unit width in pixels: 4 
+# - Unit height in pixels: 4 
+# - Display width in pixels: 256 
+# - Display height in pixels: 256 
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestoneshave been reached in this submission?
 # (See the assignment handout for descriptions of the milestones)
-# - Milestone 1/2/3/4 (choose the one the applies)
+# - Milestone 4
 #
 # Which approved features have been implemented for milestone 3?
 # (See the assignment handout for the list of additional features)
-# 1. (fill in the feature, if any)
-# 2. (fill in the feature, if any)
-# 3. (fill in the feature, if any)
+# 1. Different levels (i.e. there are three levels)
+# 2. Moving objects (i.e. moving bees)
+# 3. Double jump 
 # ... (add more if necessary)
 #
 # Link to video demonstration for final submission:
@@ -30,19 +30,22 @@
 # - yes / no / yes, and please share this project github link as well!
 #
 # Any additional information that the TA needs to know:
-# - (write here, if any)
-#
+# - when the player jumps once, double jump works when the player is 
+# moving upwards
+# - there are three levels in the game
+# - the player moves on to the next level when they collect a water item
+# - when the player collects a third water item, they win the game
+# - the player loses when they lose three lives
+# - a player loses a life when they hit the white cloud at the bottom
+# 	of the screen of when they hit a bee
+# - when they lose a life, they return to the beginning of the level
+# - use w to jump, a to move left, and d to move right
+# - the player cannot move through platforms
+# - click r to reset the game and q to quit the game
+# - note: when the game over or "you did it" screen is reached, then
+#   the program terminates
 #####################################################################
 
-# Bitmap display starter code
-#
-# Bitmap Display Configuration:
-# - Unit width in pixels: 4
-# - Unit height in pixels: 4
-# - Display width in pixels: 256
-# - Display height in pixels: 256
-# - Base Address for Display: 0x10008000 ($gp)
-#
 .data
 promptEnd: .asciiz "End of program "
 promptA: .asciiz "pressed a"
@@ -132,7 +135,7 @@ xposChar: .word 0x0000000
 yposChar: .word 0x0000000
 addressChar: .word 0x1000A800
 addressBee: .word 0x10008000
-#addressWater: .word 0x10008528
+
 charJumpTimer: .word 10
 charHorDir:	.word 1
 # 0 - left
@@ -360,6 +363,7 @@ AFTER_BEE_MOVED:
 	jal 	CHECK_BEE_COLLISION					# check for bee collision
 
 	j MAIN
+
 ############# Keyboard press ###############################
 
 keypress_happened:
@@ -491,8 +495,6 @@ UPDATE_XPOS_LEFT:
 
 	sw 		$t1, 0($t2)			# Update char address
 
-	#la 		$a0, addressChar	# Get character address
-	#lw 		$a0, 0($a0)
 
 
 
@@ -556,8 +558,6 @@ UPDATE_XPOS:
 
 	sw 		$t1, 0($t2)			# Update char address
 
-	#la 		$a0, addressChar	# Get character address
-	#lw 		$a0, 0($a0)
 
 RIGHT_UPDATE_DIR:
 
@@ -587,13 +587,7 @@ GRAVITY:
 	lw 		$t1, 0($t0)				# get character position
 
 	add 	$t2, $t2, $t1		# get address below bottom left of character
-	#lw $t3, 0($t2)			# get colour below bottom left of character			
 
-	#beq $t2, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom left corner is on a platform
-
-	#add $a0, $zero, $t1		# store character position in $a0
-	#jal ERASE_CHAR			# erase Character
-	#jal DRAW_SKY			# draw the sky
 
 	addi 	$t3, $zero, CHARACTER_WIDTH 	# store character width
 	addi 	$t4, $zero, UNIT_WIDTH			# store the number of pixels per unit
@@ -610,15 +604,6 @@ GRAVITY_LOOP:
 	beq 	$t5, INDIGO, ADD_POINTS					# if pixel is water, add a point 
 	addi 	$t2, $t2, UNIT_WIDTH					# get address of next unit
 	j 		GRAVITY_LOOP								# jump to beginning of loop
-	#lw $t3, 0($t2)			# get colour below bottom left of character
-
-	#add $t2, $t2, $t3			# get address below bottom right corner of character
-	#lw $t3, 0($t2)			# get colour below bottom left of character
-
-	#beq $t3, DARK_GREEN, MOVE_DOWN_COMPLETE		# Check if bottom right corner is on a platform
-
-	#addi $t2, $t1, WIDTH_PIXELS			# move down one row
-	#sw $t2, 0($t0)						# update character address
 
 ON_PLATFORM:
 	addi 	$s1, $zero, 0				# set jump variable to 0 to indicate on platform
@@ -827,7 +812,6 @@ RESTART_LEVEL:
 	jr $ra
 
 ERASE_LIFE:
-	#addi 
 	jr $ra
 
 ################# Draw Lives ################################
@@ -901,7 +885,6 @@ GO_TO_WIN:
 
 END_ADD_POINTS:
 
-	#beq $t9, $t7, GAME_WON   # if 3 points, then won game
 	lw $ra, 0($sp)			# pop $ra
 	addi $sp, $sp, 4
 
@@ -913,10 +896,6 @@ GAME_OVER:
 	jal DRAW_GAME_OVER
 	jal QUIT
 
-################ Level 2 ###########################
-
-
-################ Level 3 ###########################
 
 ################ Game Won #############################
 DRAW_WON:
@@ -1169,14 +1148,6 @@ DRAW_PFORM_LOOP2:
 	add $t1, $t1, $t8	# t3 = addr(ypos) + i
 	add $t2, $t2, $t8	# t3 = addr(width) + i
 	
-	#move $a0, $t0	
-	#li $v0, 1
-	#syscall 
-
-	# Prints  prompt text
-	#li 		$v0, 4		      
-	#la 		$a0, promptA
-	#syscall  
 	
 	# push arguments onto stack
 	lw $t3, 0($t0)		#$t3 = xpos[i]
@@ -1256,14 +1227,6 @@ DRAW_PFORM_LOOP3:
 	add $t1, $t1, $t8	# t3 = addr(ypos) + i
 	add $t2, $t2, $t8	# t3 = addr(width) + i
 	
-	#move $a0, $t0	
-	#li $v0, 1
-	#syscall 
-
-	# Prints  prompt text
-	#li 		$v0, 4		      
-	#la 		$a0, promptA
-	#syscall  
 	
 	# push arguments onto stack
 	lw $t3, 0($t0)		#$t3 = xpos[i]
@@ -1353,17 +1316,6 @@ ROW_END:
 	j MOVE_ROW
 REC_END:
 	jr $ra
-
-################# Draw character #################################
-
-#DRAW_CHAR:
-
-	#addi $sp, $sp, -4		# move stack pointer
-	#sw $ra, 0($sp)			#store caller address
-
-	#la $to, $s0		# get address of char direction 
-	#lw $t0, 0($t0)			# get value of direction
-	#beq $s0, $zero, DRAW_LEFT
 
 ################# Draw character facing RIGHT #############################
 
